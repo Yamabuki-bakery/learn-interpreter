@@ -20,6 +20,7 @@
 ```shell
 npm i learn-interpreter
 ```
+
 ```ts
 import { greet } from "learn-interpreter";
 
@@ -30,7 +31,6 @@ greet("Hello, world! 💖");
 
 See [`.github/CONTRIBUTING.md`](./.github/CONTRIBUTING.md), then [`.github/DEVELOPMENT.md`](./.github/DEVELOPMENT.md).
 Thanks! 💖
-
 
 <!-- You can remove this notice if you don't want it 🙂 no worries! -->
 
