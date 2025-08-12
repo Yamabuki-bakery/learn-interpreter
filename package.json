@@ -24,7 +24,8 @@
 		"lint": "eslint . --max-warnings 0",
 		"prepare": "husky",
 		"test": "vitest",
-		"tsc": "tsc"
+		"tsc": "tsc",
+		"start": "node lib/index.js"
 	},
 	"lint-staged": {
 		"*": "prettier --ignore-unknown --write"
