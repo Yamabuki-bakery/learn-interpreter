@@ -4,18 +4,18 @@
 
 Eventually we reach the peak. We have a bird’s-eye view of the user’s program and can see what their code _means_. We begin our descent down the other side of the mountain. We transform this highest-level representation down to successively lower-level forms to get closer and closer to something we know how to make the CPU actually execute.
 
-![[file-20250812194106249.jpg]]
+![](assets/002-a-map-of-the-territory/file-20250812194106249.jpg)
 ## Scanning
 
 將文本轉換爲 token
 
-![[file-20250812194730212.jpg]]
+![](assets/002-a-map-of-the-territory/file-20250812194730212.jpg)
 
 ## Parse
 
 將 token 串轉換爲 AST，檢查語法的錯誤
 
-![[file-20250812194940342.jpg]]
+![](assets/002-a-map-of-the-territory/file-20250812194940342.jpg)
 
 
 ## Static analysis
@@ -82,11 +82,11 @@ Pascal和C语言就是围绕这个限制而设计的。在当时，内存非常�
 
 ## 編譯器和解釋器？
 
-![[file-20250812205836172.jpg]]
+![](assets/002-a-map-of-the-territory/file-20250812205836172.jpg)
 
 
 
-![[file-20250812205917523.jpg]]
+![](assets/002-a-map-of-the-territory/file-20250812205917523.jpg)
 
 
 ## Challenges
