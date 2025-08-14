@@ -1,0 +1,48 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/lib/index.js",
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "args": []
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch with File Argument",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/lib/index.js",
+      "outFiles": [
+        "${workspaceFolder}/lib/**/*.js"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "args": ["${input:filename}"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "filename",
+      "description": "Enter filename to run",
+      "default": "lox/first.lox",
+      "type": "promptString"
+    }
+  ]
+}

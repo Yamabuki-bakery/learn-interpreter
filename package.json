@@ -19,13 +19,14 @@
 		"package.json"
 	],
 	"scripts": {
-		"build": "tsdown",
+		"build": "tsdown --clean",
 		"format": "prettier .",
 		"lint": "eslint . --max-warnings 0",
 		"prepare": "husky",
 		"test": "vitest",
 		"tsc": "tsc",
-		"start": "node lib/index.js"
+		"start": "node lib/index.js",
+		"ex": "pnpm build && pnpm start"
 	},
 	"lint-staged": {
 		"*": "prettier --ignore-unknown --write"
