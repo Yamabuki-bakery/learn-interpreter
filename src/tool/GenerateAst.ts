@@ -29,7 +29,12 @@ function defineAst(outputDir: string, baseName: string, types: string[]): void {
   writeLine("/* eslint-disable @typescript-eslint/no-unused-vars */");
   writeLine("/* eslint-disable @typescript-eslint/no-explicit-any */");
   writeLine('import { Token } from "../Token";');
-  writeLine(`abstract class ${baseName} {}`);
+  writeLine(`export interface ${baseName} {
+  accept(visitor: Visitor<any>): any;  
+}`);
+  writeLine("");
+  defineVisitor(baseName, types);
+  writeLine("");
 
   types.forEach((type) => {
     const className = type.split("-")[0].trim();
@@ -40,26 +45,38 @@ function defineAst(outputDir: string, baseName: string, types: string[]): void {
   writer.close();
 }
 
+function defineVisitor(baseName: string, types: string[]): void {
+  writeLine(`export interface Visitor<T> {`);
+  types.forEach((type) => {
+    const className = type.split("-")[0].trim();
+    writeLine(`  visit${className}${baseName}(${baseName.toLowerCase()}: ${className}): T;`);
+  });
+  writeLine("}");
+}
+
 function defineType(
   baseName: string,
   className: string,
   fieldList: string,
 ): void {
   const definition = `
-class ${className} extends ${baseName} {
+export class ${className} implements ${baseName} {
   constructor (${fieldList
     .split(",")
     .map((field) => `readonly ${field.trim()}`)
-    .join(', ')}) {
-    super();
+    .join(', ')}) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visit${className}${baseName}(this);
   }
 }`;
+
   writeLine(definition);
 }
 
 main();
 
-// pnpx tsx GenerateAst.ts .
+// pnpx tsx GenerateAst.ts ../generated
 
 // abstract class Expr {
 //   static class Binary extends Expr {
