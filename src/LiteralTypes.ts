@@ -1,0 +1,1 @@
+export type LiteralTypes = string | number | boolean | null;

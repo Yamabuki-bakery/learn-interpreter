@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { LiteralTypes } from "../LiteralTypes";
 import { Token } from "../Token";
 export interface Expr {
   accept(visitor: Visitor<any>): any;  
@@ -30,7 +30,7 @@ export class Grouping implements Expr {
 }
 
 export class Literal implements Expr {
-  constructor (readonly value: any) { }
+  constructor (readonly value: LiteralTypes) { }
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitLiteralExpr(this);

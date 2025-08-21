@@ -26,4 +26,10 @@ export default tseslint.config(
 		files: ["**/*.test.*"],
 		rules: { "@typescript-eslint/no-unsafe-assignment": "off" },
 	},
+	{
+		files: ["**/*.{js,ts}"],
+		rules: {
+			"@typescript-eslint/restrict-template-expressions": "off"
+		}
+	}
 );

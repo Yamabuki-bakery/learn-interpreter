@@ -13,7 +13,7 @@ export function main(): void {
   defineAst(outputDir, "Expr", [
     "Binary   - left: Expr, operator: Token, right: Expr",
     "Grouping - expression: Expr",
-    "Literal  - value: any",
+    "Literal  - value: LiteralTypes",
     "Unary    - operator: Token, right: Expr",
   ]);
 }
@@ -26,8 +26,9 @@ function defineAst(outputDir: string, baseName: string, types: string[]): void {
   const path = outputDir + "/" + baseName + ".ts";
   writer = createWriteStream(path, { flags: "w", encoding: "utf-8" });
 
-  writeLine("/* eslint-disable @typescript-eslint/no-unused-vars */");
+  // writeLine("/* eslint-disable @typescript-eslint/no-unused-vars */");
   writeLine("/* eslint-disable @typescript-eslint/no-explicit-any */");
+  writeLine('import { LiteralTypes } from "../LiteralTypes";');
   writeLine('import { Token } from "../Token";');
   writeLine(`export interface ${baseName} {
   accept(visitor: Visitor<any>): any;  
