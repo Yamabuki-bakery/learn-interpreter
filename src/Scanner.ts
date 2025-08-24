@@ -1,6 +1,7 @@
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
 import { error } from "./Lox";
+import { LiteralTypes } from "./LiteralTypes";
 
 export class Scanner {
   private source: string;
@@ -77,6 +78,12 @@ export class Scanner {
       case "*":
         this.addToken(TokenType.STAR);
         break;
+      case "?":
+        this.addToken(TokenType.QUESTION);
+        break;
+      case ":":
+        this.addToken(TokenType.COLON);
+        break;
       case "!":
         this.addToken(this.match("=") ? TokenType.BANG_EQUAL : TokenType.BANG);
         break;
@@ -147,7 +154,7 @@ export class Scanner {
     this.current++;
     return c;
   }
-  private addToken(type: TokenType, literal: any = null): void {
+  private addToken(type: TokenType, literal: LiteralTypes = null): void {
     const text = this.source.substring(this.start, this.current);
     this.tokens.push(new Token(type, text, literal, this.line));
   }

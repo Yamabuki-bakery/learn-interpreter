@@ -1,7 +1,14 @@
 import { error } from "./Lox";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
-import { Binary, Expr, Grouping, Literal, Unary } from "./generated/Expr";
+import {
+  Binary,
+  Expr,
+  Grouping,
+  Literal,
+  Ternary,
+  Unary,
+} from "./generated/Expr";
 
 export class Parser {
   private tokens: Token[];
@@ -25,7 +32,38 @@ export class Parser {
   //  expressions first because they may in turn contain
   //   subexpressions of higher precedence.
   expression(): Expr {
-    return this.equality();
+    return this.comma();
+  }
+
+  comma(): Expr {
+    let expr = this.conditional();
+
+    while (this.match(TokenType.COMMA)) {
+      const operator = this.previous();
+      const right = this.conditional();
+      expr = new Binary(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  conditional(): Expr {
+    let expr = this.equality();
+
+    if (this.match(TokenType.QUESTION)) {
+      const thenBranch = this.expression();
+      // if i set conditional here,
+      // false ? 1 ,2 ,3 : "test"
+      // will give this error: Error at ',': (Conditional) Expect ':' after then branch
+      this.consume(
+        TokenType.COLON,
+        "(Conditional) Expect ':' after then branch",
+      );
+      const elseBranch = this.conditional();
+      expr = new Ternary(expr, thenBranch, elseBranch);
+    }
+
+    return expr;
   }
 
   equality(): Expr {

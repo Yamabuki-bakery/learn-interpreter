@@ -5,6 +5,7 @@ import {
   Grouping,
   Literal,
   Unary,
+  Ternary,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -16,6 +17,15 @@ export class AstPrinter implements Visitor<string> {
 
   visitBinaryExpr(expr: Binary): string {
     return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+
+  visitTernaryExpr(expr: Ternary): string {
+    return this.parenthesize(
+      "if-then-else",
+      expr.condition,
+      expr.thenBranch,
+      expr.elseBranch,
+    );
   }
 
   visitGroupingExpr(expr: Grouping): string {
@@ -55,6 +65,15 @@ class AstPrinter2 implements Visitor<string> {
 
   visitBinaryExpr(expr: Binary): string {
     return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+  
+  visitTernaryExpr(expr: Ternary): string {
+    return this.parenthesize(
+      "if-then-else",
+      expr.condition,
+      expr.thenBranch,
+      expr.elseBranch,
+    );
   }
 
   visitGroupingExpr(expr: Grouping): string {

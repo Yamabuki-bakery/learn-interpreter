@@ -7,6 +7,7 @@ export interface Expr {
 
 export interface Visitor<T> {
   visitBinaryExpr(expr: Binary): T;
+  visitTernaryExpr(expr: Ternary): T;
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitUnaryExpr(expr: Unary): T;
@@ -18,6 +19,14 @@ export class Binary implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitBinaryExpr(this);
+  }
+}
+
+export class Ternary implements Expr {
+  constructor (readonly condition: Expr, readonly thenBranch: Expr, readonly elseBranch: Expr) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitTernaryExpr(this);
   }
 }
 

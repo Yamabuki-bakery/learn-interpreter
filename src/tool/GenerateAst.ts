@@ -12,6 +12,7 @@ export function main(): void {
   const outputDir = args[0];
   defineAst(outputDir, "Expr", [
     "Binary   - left: Expr, operator: Token, right: Expr",
+    "Ternary  - condition: Expr, thenBranch: Expr, elseBranch: Expr",
     "Grouping - expression: Expr",
     "Literal  - value: LiteralTypes",
     "Unary    - operator: Token, right: Expr",
