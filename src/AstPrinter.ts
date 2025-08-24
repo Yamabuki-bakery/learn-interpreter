@@ -9,7 +9,7 @@ import {
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 
-class AstPrinter implements Visitor<string> {
+export class AstPrinter implements Visitor<string> {
   print(expr: Expr): string {
     return expr.accept(this) as string;
   }
@@ -46,7 +46,7 @@ function main() {
   console.log(new AstPrinter().print(expr));
 }
 
-main();
+// main();
 
 class AstPrinter2 implements Visitor<string> {
   print(expr: Expr): string {
@@ -93,6 +93,6 @@ function main2() {
   console.log(new AstPrinter2().print(expr));
 }
 
-main2();
+// main2();
 
 // pnpx tsx AstPrinter.ts
