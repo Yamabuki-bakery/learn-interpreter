@@ -7,8 +7,13 @@ import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 import { Parser } from "./Parser";
 import { AstPrinter } from "./AstPrinter";
+import { RuntimeError } from "./RuntimeError";
+import { Interpreter } from "./Interpreter";
 
 export let hadError = false;
+export let hadRuntimeError = false;
+
+const interpreter = new Interpreter();
 
 export function main(): void {
   const args = argv.slice(2);
@@ -27,6 +32,7 @@ function runFile(file: string): void {
   const source = readFileSync(path, "utf-8");
   run(source);
   if (hadError) process.exit(65);
+  if (hadRuntimeError) process.exit(70);
 }
 
 async function runPrompt(): Promise<void> {
@@ -49,8 +55,7 @@ function run(source: string): void {
 
   if (hadError) return;
   if (expression === null || expression === undefined) return;
-  console.log(JSON.stringify(expression, null, 2));
-  console.log(new AstPrinter().print(expression));
+  interpreter.interpret(expression);
 }
 
 export function error(arg1: number | Token, arg2: string): void {
@@ -70,4 +75,9 @@ export function error(arg1: number | Token, arg2: string): void {
 function report(line: number, where: string, message: string): void {
   console.error(`[line ${line.toString()}] Error${where}: ${message}`);
   hadError = true;
+}
+
+export function runtimeError(error: RuntimeError) {
+  console.error(`${error.message}\n[line ${error.token.line}]`);
+  hadRuntimeError = true;
 }
