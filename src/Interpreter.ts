@@ -91,6 +91,8 @@ export class Interpreter implements Visitor<unknown> {
           expr.operator,
           "Operands must be two numbers or two strings.",
         );
+      case TokenType.COMMA:
+        return right;
     }
     return null;
   }
