@@ -6,7 +6,6 @@ import { Scanner } from "./Scanner";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 import { Parser } from "./Parser";
-import { AstPrinter } from "./AstPrinter";
 import { RuntimeError } from "./RuntimeError";
 import { Interpreter } from "./Interpreter";
 
@@ -54,7 +53,6 @@ function run(source: string): void {
   const expression = parser.parse();
 
   if (hadError) return;
-  if (expression === null || expression === undefined) return;
   interpreter.interpret(expression);
 }
 
