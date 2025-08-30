@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LiteralTypes } from "../LiteralTypes";
 import { Token } from "../Token";
+
 export interface Expr {
   accept(visitor: Visitor<any>): any;  
 }
@@ -11,6 +12,7 @@ export interface Visitor<T> {
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitUnaryExpr(expr: Unary): T;
+  visitVariableExpr(expr: Variable): T;
 }
 
 
@@ -51,5 +53,13 @@ export class Unary implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitUnaryExpr(this);
+  }
+}
+
+export class Variable implements Expr {
+  constructor (readonly name: Token) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitVariableExpr(this);
   }
 }
