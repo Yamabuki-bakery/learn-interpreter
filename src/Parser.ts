@@ -8,7 +8,10 @@ import {
   Literal,
   Ternary,
   Unary,
+  Variable,
 } from "./generated/Expr";
+
+import { Stmt, Print, Expression, Var } from "./generated/Stmt";
 
 export class Parser {
   private tokens: Token[];
@@ -18,14 +21,60 @@ export class Parser {
     this.tokens = tokens;
   }
 
-  parse(): Expr | null | undefined {
+  parse(): Stmt [] {
+    const statements: Stmt[] = [];
+    while (!this.isAtEnd()) {
+      const result = this.declaration(); 
+      if (result !== null) {  // in case of parsing error, skipping
+        statements.push(result);
+      } 
+    }
+
+    return statements;
+  }
+
+  private declaration(): Stmt | null {
     try {
-      return this.expression();
-    } catch (e: unknown) {
-      if (e instanceof ParseError) {
+      if (this.match(TokenType.VAR)) return this.varDeclaration();
+      return this.statement();
+    } catch (error) {
+      if (error instanceof ParseError) {
+        this.synchronize();
         return null;
+      } else {
+        throw error;
       }
     }
+  }
+
+  private varDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+    let initializer: Expr | null = null;
+    if (this.match(TokenType.EQUAL)) {
+      initializer = this.expression();
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+    return new Var(name, initializer);
+  }
+
+  private statement(): Stmt {
+    if (this.match(TokenType.PRINT)) return this.printStatement();
+    return this.expressionStatement();
+    // If the next token doesn’t look like any known kind of statement, we assume it must be an expression statement. That’s the typical final fallthrough case when parsing a statement, since it’s hard to proactively recognize an expression from its first token.
+  }
+
+  private printStatement(): Stmt {
+    const value = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Print(value);
+  }
+
+  private expressionStatement(): Stmt {
+    const expr = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new Expression(expr);
   }
 
   // In a top-down parser, you reach the lowest-precedence
@@ -138,6 +187,11 @@ export class Parser {
 
     if (this.match(TokenType.STRING, TokenType.NUMBER)) {
       return new Literal(this.previous().literal);
+    }
+
+    // Parsing a variable expression is even easier. In primary(), we look for an identifier token.
+    if (this.match(TokenType.IDENTIFIER)) {
+      return new Variable(this.previous());
     }
 
     if (this.match(TokenType.LEFT_PAREN)) {

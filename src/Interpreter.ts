@@ -6,18 +6,31 @@ import {
   Literal,
   Ternary,
   Unary,
-  Visitor,
+  Visitor as ExprVisitor,
+  Variable,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
 import { RuntimeError } from "./RuntimeError";
 import { runtimeError } from "./Lox";
 
-export class Interpreter implements Visitor<unknown> {
-  interpret(expr: Expr): void {
+import {
+  Print,
+  Expression,
+  Visitor as StmtVisitor,
+  Stmt,
+  Var,
+} from "./generated/Stmt";
+import { Environment } from "./Environment";
+
+export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
+  private environment = new Environment();
+  
+  interpret(statements: Stmt[]): void {
     try {
-      const value = this.evaluate(expr);
-      console.log(this.stringify(value));
+      for (const statement of statements) {
+        this.execute(statement);
+      }
     } catch (error) {
       if (error instanceof RuntimeError) {
         runtimeError(error);
@@ -32,10 +45,30 @@ export class Interpreter implements Visitor<unknown> {
     if (typeof object === "number") {
       return object.toString();
     }
-    if (typeof object === 'boolean' || typeof object === 'string') 
+    if (typeof object === "boolean" || typeof object === "string")
       return object.toString();
 
-    throw new TypeError(`What is this? ${object}`);
+    throw new TypeError(`What is this? ${object as unknown}`);
+  }
+
+  visitExpressionStmt(stmt: Expression): null {
+    this.evaluate(stmt.expression);
+    return null;
+  }
+
+  visitVarStmt(stmt: Var): void {
+    let value: unknown = null;
+    if (stmt.initializer !== null) {
+      value = this.evaluate(stmt.initializer);
+    }
+    
+    this.environment.define(stmt.name.lexeme, value);
+  }
+
+  visitPrintStmt(stmt: Print): null {
+    const value = this.evaluate(stmt.expression);
+    console.log(this.stringify(value));
+    return null;
   }
 
   visitBinaryExpr(expr: Binary): unknown {
@@ -122,8 +155,16 @@ export class Interpreter implements Visitor<unknown> {
     return null;
   }
 
+  visitVariableExpr(expr: Variable): unknown {
+    return this.environment.get(expr.name);
+  }
+
   private evaluate(expr: Expr): unknown {
     return expr.accept(this) as unknown;
+  }
+
+  private execute(stmt: Stmt): void {
+    stmt.accept(this);
   }
 }
 function isEqual(a: unknown, b: unknown) {
