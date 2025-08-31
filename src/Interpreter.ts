@@ -8,6 +8,7 @@ import {
   Unary,
   Visitor as ExprVisitor,
   Variable,
+  Assign,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -69,6 +70,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const value = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
     return null;
+  }
+
+  visitAssignExpr(expr: Assign): unknown {
+    const value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
+    return value;
   }
 
   visitBinaryExpr(expr: Binary): unknown {

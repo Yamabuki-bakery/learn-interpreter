@@ -2,6 +2,7 @@ import { error } from "./Lox";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
 import {
+  Assign,
   Binary,
   Expr,
   Grouping,
@@ -85,14 +86,33 @@ export class Parser {
   }
 
   comma(): Expr {
-    let expr = this.conditional();
+    let expr = this.assignment();
 
     while (this.match(TokenType.COMMA)) {
       const operator = this.previous();
-      const right = this.conditional();
+      const right = this.assignment();
       expr = new Binary(expr, operator, right);
     }
 
+    return expr;
+  }
+
+  // accouding to https://en.cppreference.com/w/c/language/operator_precedence.html
+  // assignment is higher precedence than comma
+  assignment(): Expr {
+    const expr = this.conditional();
+
+    if (this.match(TokenType.EQUAL)) {
+      const equals = this.previous();
+      const value = this.assignment();
+
+      if (expr instanceof Variable) {
+        const name = expr.name;
+        return new Assign(name, value);
+      }
+      
+      this.error(equals, "Invalid assignment target.");
+    }
     return expr;
   }
 

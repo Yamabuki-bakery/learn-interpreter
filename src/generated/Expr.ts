@@ -7,6 +7,7 @@ export interface Expr {
 }
 
 export interface Visitor<T> {
+  visitAssignExpr(expr: Assign): T;
   visitBinaryExpr(expr: Binary): T;
   visitTernaryExpr(expr: Ternary): T;
   visitGroupingExpr(expr: Grouping): T;
@@ -15,6 +16,14 @@ export interface Visitor<T> {
   visitVariableExpr(expr: Variable): T;
 }
 
+
+export class Assign implements Expr {
+  constructor (readonly name: Token, readonly value: Expr) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitAssignExpr(this);
+  }
+}
 
 export class Binary implements Expr {
   constructor (readonly left: Expr, readonly operator: Token, readonly right: Expr) { }

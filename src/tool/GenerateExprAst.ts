@@ -13,6 +13,7 @@ export function main(): void {
     'import { Token } from "../Token";',
   ];
   defineAst(outputDir, "Expr", [
+    "Assign   - name: Token, value: Expr",
     "Binary   - left: Expr, operator: Token, right: Expr",
     "Ternary  - condition: Expr, thenBranch: Expr, elseBranch: Expr",
     "Grouping - expression: Expr",
