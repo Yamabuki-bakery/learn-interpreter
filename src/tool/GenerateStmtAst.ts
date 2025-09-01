@@ -16,6 +16,7 @@ export function main(): void {
     outputDir,
     "Stmt",
     [
+      "Block      - statements: Stmt[]",
       "Expression - expression: Expr",
       "Print      - expression: Expr",
       "Var        - name: Token, initializer: Expr | null",

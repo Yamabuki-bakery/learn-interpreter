@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, stat } from "fs";
 import { argv } from "process";
 import { join } from "path";
 import readInput, { closeInput } from "./utils/input";
@@ -8,6 +8,7 @@ import { TokenType } from "./TokenType";
 import { Parser } from "./Parser";
 import { RuntimeError } from "./RuntimeError";
 import { Interpreter } from "./Interpreter";
+import { Expression } from "./generated/Stmt";
 
 export let hadError = false;
 export let hadRuntimeError = false;
@@ -41,6 +42,7 @@ async function runPrompt(): Promise<void> {
     if (line === null) break;
     run(line);
     hadError = false;
+    hadRuntimeError = false;
   }
   // Clean up readline interface
   closeInput();
@@ -50,10 +52,18 @@ function run(source: string): void {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
   const parser = new Parser(tokens);
-  const expression = parser.parse();
+  const statements = parser.parse();
 
   if (hadError) return;
-  interpreter.interpret(expression);
+  if (statements.length === 1 && statements[0] instanceof Expression) {
+    const value = interpreter.interpretSingle(
+      statements[0].expression,
+    );
+    if (hadRuntimeError) return;
+    console.log(interpreter.stringify(value));
+    return;
+  }
+  interpreter.interpret(statements);
 }
 
 export function error(arg1: number | Token, arg2: string): void {

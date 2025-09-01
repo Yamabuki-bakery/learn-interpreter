@@ -12,7 +12,7 @@ import {
   Variable,
 } from "./generated/Expr";
 
-import { Stmt, Print, Expression, Var } from "./generated/Stmt";
+import { Stmt, Print, Expression, Var, Block } from "./generated/Stmt";
 
 export class Parser {
   private tokens: Token[];
@@ -62,6 +62,8 @@ export class Parser {
 
   private statement(): Stmt {
     if (this.match(TokenType.PRINT)) return this.printStatement();
+    if (this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
+
     return this.expressionStatement();
     // If the next token doesn’t look like any known kind of statement, we assume it must be an expression statement. That’s the typical final fallthrough case when parsing a statement, since it’s hard to proactively recognize an expression from its first token.
   }
@@ -78,6 +80,22 @@ export class Parser {
     return new Expression(expr);
   }
 
+  private block(): Stmt[] {
+    const statements: Stmt[] = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      const result = this.declaration();
+      if (result !== null) {  // in case of parsing error, skipping
+        statements.push(result);
+      } else {
+        // console.warn("Check this and delete this warning");
+        // handled by hadError
+      }
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
+  }
   // In a top-down parser, you reach the lowest-precedence
   //  expressions first because they may in turn contain
   //   subexpressions of higher precedence.

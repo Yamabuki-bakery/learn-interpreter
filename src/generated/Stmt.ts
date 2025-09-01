@@ -7,11 +7,20 @@ export interface Stmt {
 }
 
 export interface Visitor<T> {
+  visitBlockStmt(stmt: Block): T;
   visitExpressionStmt(stmt: Expression): T;
   visitPrintStmt(stmt: Print): T;
   visitVarStmt(stmt: Var): T;
 }
 
+
+export class Block implements Stmt {
+  constructor (readonly statements: Stmt[]) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitBlockStmt(this);
+  }
+}
 
 export class Expression implements Stmt {
   constructor (readonly expression: Expr) { }

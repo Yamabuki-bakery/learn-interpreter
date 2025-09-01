@@ -21,6 +21,7 @@ import {
   Visitor as StmtVisitor,
   Stmt,
   Var,
+  Block,
 } from "./generated/Stmt";
 import { Environment } from "./Environment";
 
@@ -41,15 +42,48 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     }
   }
 
+  interpretSingle(expr: Expr): unknown {
+    try {
+      return this.evaluate(expr);
+    } catch (error) {
+      if (error instanceof RuntimeError) {
+        runtimeError(error);
+      } else {
+        throw error;
+      }
+    }
+    return null;
+  }
+
   stringify(object: unknown): string {
     if (object === null) return "nil";
     if (typeof object === "number") {
+      // check -0
+      if (Object.is(object, -0)) return "-0";
       return object.toString();
     }
     if (typeof object === "boolean" || typeof object === "string")
       return object.toString();
 
     throw new TypeError(`What is this? ${object as unknown}`);
+  }
+
+  visitBlockStmt(stmt: Block): void {
+    this.executeBlock(stmt.statements, new Environment(this.environment));
+    return;
+  }
+
+  executeBlock(statements: Stmt[], environment: Environment): void {
+    const previous = this.environment;
+    try {
+      this.environment = environment;
+
+      for (const statement of statements) {
+        this.execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
   }
 
   visitExpressionStmt(stmt: Expression): null {
