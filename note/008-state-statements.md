@@ -155,4 +155,69 @@ a = 3;   // OK.
 
 Right now, the only valid target is a simple variable expression, but we’ll add fields later. The end result of this trick is an assignment expression tree node that knows what it is assigning to and has an expression subtree for the value being assigned. All with only a single token of lookahead and no backtracking.
 
-### [8 . 4 . 2](https://craftinginterpreters.com/statements-and-state.html#assignment-semantics)
+### Scope
+
+```bnf
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement ;
+               
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+statement      → exprStmt
+               | printStmt 
+		       | block;
+		       
+block          → "{" declaration* "}" ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+
+expression     → comma ;
+
+assignment     → IDENTIFIER "=" assignment
+               | equality ;
+
+comma          → select ( "," select )*;
+conditional    → equality ( "?" expression ":" conditional )? ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" 
+               | IDENTIFIER ;
+```
+
+
+## [Challenges](https://craftinginterpreters.com/statements-and-state.html#challenges)
+
+1. The REPL no longer supports entering a single expression and automatically printing its result value. That’s a drag. Add support to the REPL to let users type in both statements and expressions. If they enter a statement, execute it. If they enter an expression, evaluate it and display the result value.
+    
+2. Maybe you want Lox to be a little more explicit about variable initialization. Instead of implicitly initializing variables to `nil`, make it a runtime error to access a variable that has not been initialized or assigned to, as in:
+    
+```
+    // No initializers.
+    var a;
+    var b;
+    
+    a = "assigned";
+    print a; // OK, was assigned first.
+    
+    print b; // Error!
+```
+    
+3. What does the following program do?
+    
+```
+    var a = 1;
+    {
+      var a = a + 2;
+      print a;
+    }
+```
+    
+    What did you _expect_ it to do? Is it what you think it should do? What does analogous code in other languages you are familiar with do? What do you think users will expect this to do?
