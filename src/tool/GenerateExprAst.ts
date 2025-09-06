@@ -18,6 +18,7 @@ export function main(): void {
     "Ternary  - condition: Expr, thenBranch: Expr, elseBranch: Expr",
     "Grouping - expression: Expr",
     "Literal  - value: LiteralTypes",
+    "Logical  - left: Expr, operator: Token, right: Expr",
     "Unary    - operator: Token, right: Expr",
     "Variable - name: Token",
   ], imports);

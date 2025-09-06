@@ -9,6 +9,7 @@ import {
   Visitor as ExprVisitor,
   Variable,
   Assign,
+  Logical,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -22,6 +23,10 @@ import {
   Stmt,
   Var,
   Block,
+  If,
+  While,
+  Break,
+  Continue,
 } from "./generated/Stmt";
 import { Environment } from "./Environment";
 
@@ -86,9 +91,43 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     }
   }
 
+  visitIfStmt(stmt: If): void {
+    const condition = this.evaluate(stmt.condition);
+    if (isTruthy(condition)) {
+      this.execute(stmt.thenBranch);
+    } else if (stmt.elseBranch !== null) {
+      this.execute(stmt.elseBranch);
+    }
+    return;
+  }
+  visitWhileStmt(stmt: While): void {
+    while (isTruthy(this.evaluate(stmt.condition))) {
+      try {
+        this.execute(stmt.body);
+      } catch (error) {
+        if (error instanceof BreakException) {
+          break;
+        } else if (error instanceof ContinueException) {
+          continue;
+        } else {
+          throw error;
+        }
+      }
+    }
+    return;
+  }
+
   visitExpressionStmt(stmt: Expression): null {
     this.evaluate(stmt.expression);
     return null;
+  }
+
+  visitBreakStmt(stmt: Break): void {
+    throw new BreakException(stmt.keyword, "Break statement");
+  }
+
+  visitContinueStmt(stmt: Continue): void {
+    throw new ContinueException(stmt.keyword, "Continue statement");
   }
 
   visitVarStmt(stmt: Var): void {
@@ -110,6 +149,18 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const value = this.evaluate(expr.value);
     this.environment.assign(expr.name, value);
     return value;
+  }
+
+  visitLogicalExpr(expr: Logical): unknown {
+    const left = this.evaluate(expr.left);
+
+    if (expr.operator.type === TokenType.OR) {
+      if (isTruthy(left)) return left;
+    } else {
+      if (!isTruthy(left)) return left;
+    }
+
+    return this.evaluate(expr.right);
   }
 
   visitBinaryExpr(expr: Binary): unknown {
@@ -234,3 +285,6 @@ function checkNumberOperands(
     return [left, right];
   throw new RuntimeError(operator, "Operands must be numbers.");
 }
+
+class BreakException extends RuntimeError {}
+class ContinueException extends RuntimeError {}

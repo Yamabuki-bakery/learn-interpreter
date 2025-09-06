@@ -7,28 +7,41 @@ import {
   Expr,
   Grouping,
   Literal,
+  Logical,
   Ternary,
   Unary,
   Variable,
 } from "./generated/Expr";
 
-import { Stmt, Print, Expression, Var, Block } from "./generated/Stmt";
+import {
+  Stmt,
+  Print,
+  Expression,
+  Var,
+  Block,
+  If,
+  While,
+  Break,
+  Continue,
+} from "./generated/Stmt";
 
 export class Parser {
   private tokens: Token[];
   private current = 0;
+  private loopDepth = 0;
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
   }
 
-  parse(): Stmt [] {
+  parse(): Stmt[] {
     const statements: Stmt[] = [];
     while (!this.isAtEnd()) {
-      const result = this.declaration(); 
-      if (result !== null) {  // in case of parsing error, skipping
+      const result = this.declaration();
+      if (result !== null) {
+        // in case of parsing error, skipping
         statements.push(result);
-      } 
+      }
     }
 
     return statements;
@@ -61,11 +74,106 @@ export class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.FOR)) return this.forStatement();
+    if (this.match(TokenType.IF)) return this.ifStatement();
     if (this.match(TokenType.PRINT)) return this.printStatement();
+    if (this.match(TokenType.WHILE)) return this.whileStatement();
+    if (this.match(TokenType.BREAK)) return this.breakStatement();
+    if (this.match(TokenType.CONTINUE)) return this.continueStatement();
     if (this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
 
     return this.expressionStatement();
     // If the next token doesn’t look like any known kind of statement, we assume it must be an expression statement. That’s the typical final fallthrough case when parsing a statement, since it’s hard to proactively recognize an expression from its first token.
+  }
+
+  private breakStatement(): Stmt {
+    if (this.loopDepth === 0) {
+      throw this.error(
+        this.previous(),
+        "Can't use 'break' outside of a loop.",
+      );
+    }
+    const keyword = this.previous();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after 'break'.");
+    return new Break(keyword);
+  }
+
+  private continueStatement(): Stmt {
+    if (this.loopDepth === 0) {
+      throw this.error(
+        this.previous(),
+        "Can't use 'continue' outside of a loop.",
+      );
+    }
+    const keyword = this.previous();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after 'continue'.");
+    return new Continue(keyword);
+  }
+
+  private forStatement(): Stmt {
+    // convert for statement into while statement
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    let initializer: Stmt | null;
+    if (this.match(TokenType.SEMICOLON)) {
+      initializer = null;
+    } else if (this.match(TokenType.VAR)) {
+      initializer = this.varDeclaration();
+    } else {
+      initializer = this.expressionStatement();
+    }
+
+    let condition: Expr | null = null;
+    if (!this.check(TokenType.SEMICOLON)) {
+      condition = this.expression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+    let increment: Expr | null = null;
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      increment = this.expression();
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+    
+    this.loopDepth++;
+    let body = this.statement();
+
+    if (increment !== null) {
+      body = new Block([body, new Expression(increment)]);
+    }
+
+    condition ??= new Literal(true);
+    body = new While(condition, body);
+
+    if (initializer !== null) {
+      body = new Block([initializer, body]);
+    }
+    this.loopDepth--;
+    return body;
+  }
+
+  private ifStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+    const thenBranch = this.statement();
+    let elseBranch: Stmt | null = null;
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement();
+    }
+
+    return new If(condition, thenBranch, elseBranch);
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+    this.loopDepth++;
+    const body = this.statement();
+    this.loopDepth--;
+    return new While(condition, body);
   }
 
   private printStatement(): Stmt {
@@ -85,7 +193,8 @@ export class Parser {
 
     while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
       const result = this.declaration();
-      if (result !== null) {  // in case of parsing error, skipping
+      if (result !== null) {
+        // in case of parsing error, skipping
         statements.push(result);
       } else {
         // console.warn("Check this and delete this warning");
@@ -128,14 +237,14 @@ export class Parser {
         const name = expr.name;
         return new Assign(name, value);
       }
-      
+
       this.error(equals, "Invalid assignment target.");
     }
     return expr;
   }
 
   conditional(): Expr {
-    let expr = this.equality();
+    let expr = this.or();
 
     if (this.match(TokenType.QUESTION)) {
       const thenBranch = this.expression();
@@ -148,6 +257,30 @@ export class Parser {
       );
       const elseBranch = this.conditional();
       expr = new Ternary(expr, thenBranch, elseBranch);
+    }
+
+    return expr;
+  }
+
+  or(): Expr {
+    let expr = this.and();
+
+    while (this.match(TokenType.OR)) {
+      const operator = this.previous();
+      const right = this.and();
+      expr = new Logical(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  and(): Expr {
+    let expr = this.equality();
+
+    while (this.match(TokenType.AND)) {
+      const operator = this.previous();
+      const right = this.equality();
+      expr = new Logical(expr, operator, right);
     }
 
     return expr;

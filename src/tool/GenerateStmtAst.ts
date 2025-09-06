@@ -18,8 +18,12 @@ export function main(): void {
     [
       "Block      - statements: Stmt[]",
       "Expression - expression: Expr",
+      "If         - condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null",
       "Print      - expression: Expr",
       "Var        - name: Token, initializer: Expr | null",
+      "While      - condition: Expr, body: Stmt",
+      "Break      - keyword: Token",
+      "Continue   - keyword: Token",
     ],
     imports,
   );
