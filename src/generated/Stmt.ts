@@ -11,6 +11,8 @@ export interface Visitor<T> {
   visitExpressionStmt(stmt: Expression): T;
   visitIfStmt(stmt: If): T;
   visitPrintStmt(stmt: Print): T;
+  visitReturnStmt(stmt: Return): T;
+  visitFunctionStmt(stmt: Function): T;
   visitVarStmt(stmt: Var): T;
   visitWhileStmt(stmt: While): T;
   visitBreakStmt(stmt: Break): T;
@@ -47,6 +49,22 @@ export class Print implements Stmt {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitPrintStmt(this);
+  }
+}
+
+export class Return implements Stmt {
+  constructor (readonly keyword: Token, readonly value: Expr | null) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitReturnStmt(this);
+  }
+}
+
+export class Function implements Stmt {
+  constructor (readonly name: Token, readonly params: Token[], readonly body: Stmt[]) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitFunctionStmt(this);
   }
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-wrapper-object-types */
 import {
   Binary,
   Expr,
@@ -10,11 +9,13 @@ import {
   Variable,
   Assign,
   Logical,
+  Call,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
 import { RuntimeError } from "./RuntimeError";
 import { runtimeError } from "./Lox";
+import { LoxNativeFunctions } from "./LoxNativeFunctions";
 
 import {
   Print,
@@ -27,11 +28,24 @@ import {
   While,
   Break,
   Continue,
+  Function,
+  Return,
 } from "./generated/Stmt";
 import { Environment } from "./Environment";
+import { castToLoxCallable } from "./LoxCallable";
+import { LoxCallable } from "./LoxCallable";
+import { LoxFunction } from "./LoxFunction";
 
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
-  private environment = new Environment();
+  globals = new Environment();
+  private environment: Environment = this.globals;
+
+  constructor() {
+    // Define native functions here if needed
+    LoxNativeFunctions.forEach((fn) => {
+      this.globals.define(fn.name, fn);
+    });
+  }
   
   interpret(statements: Stmt[]): void {
     try {
@@ -139,10 +153,24 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     this.environment.define(stmt.name.lexeme, value);
   }
 
+  visitFunctionStmt(stmt: Function): void {
+    const func = new LoxFunction(stmt, this.environment);
+    this.environment.define(stmt.name.lexeme, func);
+    return;
+  }
+
   visitPrintStmt(stmt: Print): null {
     const value = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
     return null;
+  }
+
+  visitReturnStmt(stmt: Return): void {
+    let value: unknown = null;
+    if (stmt.value !== null) {
+      value = this.evaluate(stmt.value);
+    }
+    throw new ReturnException(value, stmt.keyword);
   }
 
   visitAssignExpr(expr: Assign): unknown {
@@ -247,6 +275,28 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     return null;
   }
 
+  visitCallExpr(expr: Call): unknown {
+    const callee = this.evaluate(expr.callee);
+
+    const args = expr.args.map((arg) => this.evaluate(arg));
+
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+    }
+
+    const func = castToLoxCallable(callee);
+
+    // arity check could be here if needed
+    if (args.length !== func.arity()) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${func.arity()} arguments but got ${args.length}.`,
+      );
+    }
+
+    return func.call(this, args);
+  }
+
   visitVariableExpr(expr: Variable): unknown {
     return this.environment.get(expr.name);
   }
@@ -288,3 +338,10 @@ function checkNumberOperands(
 
 class BreakException extends RuntimeError {}
 class ContinueException extends RuntimeError {}
+export class ReturnException extends RuntimeError {
+  value: unknown;
+  constructor(value: unknown, token: Token) {
+    super(token, "");
+    this.value = value;
+  }
+}

@@ -20,6 +20,8 @@ export function main(): void {
       "Expression - expression: Expr",
       "If         - condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null",
       "Print      - expression: Expr",
+      "Return     - keyword: Token, value: Expr | null",
+      "Function   - name: Token, params: Token[], body: Stmt[]",
       "Var        - name: Token, initializer: Expr | null",
       "While      - condition: Expr, body: Stmt",
       "Break      - keyword: Token",

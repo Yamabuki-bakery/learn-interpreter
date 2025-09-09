@@ -20,6 +20,7 @@ export function main(): void {
     "Literal  - value: LiteralTypes",
     "Logical  - left: Expr, operator: Token, right: Expr",
     "Unary    - operator: Token, right: Expr",
+    "Call     - callee: Expr, paren: Token, args: Expr[]",
     "Variable - name: Token",
   ], imports);
 }

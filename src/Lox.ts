@@ -1,4 +1,4 @@
-import { readFileSync, stat } from "fs";
+import { readFileSync } from "fs";
 import { argv } from "process";
 import { join } from "path";
 import readInput, { closeInput } from "./utils/input";

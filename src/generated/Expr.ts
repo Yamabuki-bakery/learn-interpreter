@@ -14,6 +14,7 @@ export interface Visitor<T> {
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
   visitUnaryExpr(expr: Unary): T;
+  visitCallExpr(expr: Call): T;
   visitVariableExpr(expr: Variable): T;
 }
 
@@ -71,6 +72,14 @@ export class Unary implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitUnaryExpr(this);
+  }
+}
+
+export class Call implements Expr {
+  constructor (readonly callee: Expr, readonly paren: Token, readonly args: Expr[]) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitCallExpr(this);
   }
 }
 
