@@ -19,7 +19,7 @@
 		"package.json"
 	],
 	"scripts": {
-		"build": "tsdown --clean",
+		"build": "tsc --noEmit && tsdown --clean",
 		"format": "prettier .",
 		"lint": "eslint . --max-warnings 0",
 		"prepare": "husky",

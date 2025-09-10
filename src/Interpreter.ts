@@ -84,6 +84,10 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     if (typeof object === "boolean" || typeof object === "string")
       return object.toString();
 
+    if (object instanceof LoxCallable) {
+      return object.toString();
+    }
+
     throw new TypeError(`What is this? ${object as unknown}`);
   }
 
