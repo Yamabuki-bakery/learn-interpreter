@@ -64,5 +64,70 @@ arguments      → expression ( "," expression )* ;
 
 primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" 
-               | IDENTIFIER ;
+               | IDENTIFIER 
+               | funcExpr ;
+
+funcExpr       → "fun" "(" parameters? ")" block ;
 ```
+
+
+## 🧠 Challenge 1: Why don’t Smalltalk implementations suffer the performance cost of runtime arity checking?
+
+### 🔍 The Problem
+
+Lox checks at runtime whether the number of arguments passed to a function matches the number of parameters it expects. This adds overhead. Smalltalk doesn’t seem to have this issue.
+
+### ✅ The Insight
+
+Smalltalk is a **message-passing** language. When you call a method, you're sending a message to an object. The method name itself encodes the number of arguments. For example:
+
+```smalltalk
+object doSomethingWith: arg1 and: arg2
+```
+
+This method name is `doSomethingWith:and:` — it _requires_ two arguments. If you send a message with the wrong number of arguments, it’s a **different message** entirely and won’t match any method.
+
+### 💡 Why It’s Efficient
+
+- **Method lookup is based on the full selector**, which includes argument count.
+- **No need for runtime arity checking** — mismatched calls simply fail to resolve.
+- This shifts the burden to the **method dispatch system**, which is already optimized.
+
+### 🛠️ How to Apply This
+
+Lox could theoretically encode arity into function identifiers or use a similar dispatch mechanism, but that would complicate its design. Instead, it opts for a simpler runtime check.
+
+---
+
+## 🧪 Challenge 3: Are parameters in the same scope as local variables?
+
+### 🧩 The Question
+
+```lox
+fun scope(a) {
+  var a = "local";
+}
+```
+
+Is this valid? Does the parameter `a` conflict with the local variable `a`?
+
+### ✅ What Lox Does
+
+Lox **allows** this. The local variable `a` shadows the parameter. So inside the function body, `a` refers to `"local"`.
+
+### 🔍 Other Languages
+
+- **JavaScript**: Allows shadowing — same behavior as Lox.
+- **Python**: Also allows shadowing.
+- **Java/C++**: Parameters and local variables share the same scope — redeclaring causes a compile-time error.
+
+### 💡 What Should a Language Do?
+
+It depends on philosophy:
+
+- **Shadowing-friendly languages** (like Lox, JS, Python) prioritize flexibility.
+- **Strict languages** (like Java) prefer clarity and avoid accidental shadowing.
+
+### 🛠️ How to Handle in Lox
+
+No changes needed — just be aware that shadowing is allowed. If you want to prevent it, you’d need to add a semantic check during resolution to disallow redeclaration of parameters.

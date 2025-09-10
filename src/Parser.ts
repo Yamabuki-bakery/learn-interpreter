@@ -12,6 +12,7 @@ import {
   Ternary,
   Unary,
   Variable,
+  Function as FuncExpr,
 } from "./generated/Expr";
 
 import {
@@ -52,7 +53,7 @@ export class Parser {
 
   private declaration(): Stmt | null {
     try {
-      if (this.match(TokenType.FUN)) return this._function("function");
+      if (this.match(TokenType.FUN)) return this.namedFunction("function");
       if (this.match(TokenType.VAR)) return this.varDeclaration();
       return this.statement();
     } catch (error) {
@@ -65,8 +66,12 @@ export class Parser {
     }
   }
 
-  private _function(kind: string): Function {
+  private namedFunction(kind: string): Function {
     const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+    return this._function(kind, name);
+  }
+
+  private _function(kind: string, name: Token): Function {
     this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
     const parameters: Token[] = [];
     if (!this.check(TokenType.RIGHT_PAREN)) {
@@ -424,10 +429,32 @@ export class Parser {
     return new Call(callee, paren, args);
   }
 
+  funcExpr(kind: string): Expr {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'fun'.");
+        const parameters: Token[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (parameters.length >= 255) {
+          this.error(this.peek(), "Can't have more than 255 parameters.");
+        }
+        if (this.check(TokenType.RIGHT_PAREN)) break;
+        parameters.push(
+          this.consume(TokenType.IDENTIFIER, "Expect parameter name."),
+        );
+      } while (this.match(TokenType.COMMA));
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+    const body = this.block();
+    return new FuncExpr(parameters, body);
+  }
+
   primary(): Expr {
     if (this.match(TokenType.FALSE)) return new Literal(false);
     if (this.match(TokenType.TRUE)) return new Literal(true);
     if (this.match(TokenType.NIL)) return new Literal(null);
+    if (this.match(TokenType.FUN)) return this.funcExpr('anonymous function');
 
     if (this.match(TokenType.STRING, TokenType.NUMBER)) {
       return new Literal(this.previous().literal);

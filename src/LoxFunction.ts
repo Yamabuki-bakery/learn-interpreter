@@ -2,10 +2,11 @@ import { LoxCallable } from "./LoxCallable";
 import { Function } from "./generated/Stmt";
 import { Interpreter, ReturnException } from "./Interpreter";
 import { Environment } from "./Environment";
+import { Function as FuncExpr } from "./generated/Expr";
 
 export class LoxFunction extends LoxCallable {
   constructor(
-    private readonly declaration: Function,
+    private readonly declaration: Function | FuncExpr,
     private readonly closure: Environment,
   ) {
     super();
@@ -33,6 +34,9 @@ export class LoxFunction extends LoxCallable {
   }
 
   toString(): string {
+    if (this.declaration instanceof FuncExpr) {
+      return `<fn anonymous>`;
+    }
     return `function ${this.declaration.name.lexeme}(${this.declaration.params
       .map((param) => param.lexeme)
       .join(", ")}) { ${this.declaration.body.length} statements }`;

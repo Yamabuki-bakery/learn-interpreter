@@ -11,6 +11,7 @@ export function main(): void {
   const imports = [
     'import { LiteralTypes } from "../LiteralTypes";',
     'import { Token } from "../Token";',
+    'import { Stmt } from "./Stmt";',
   ];
   defineAst(outputDir, "Expr", [
     "Assign   - name: Token, value: Expr",
@@ -22,6 +23,7 @@ export function main(): void {
     "Unary    - operator: Token, right: Expr",
     "Call     - callee: Expr, paren: Token, args: Expr[]",
     "Variable - name: Token",
+    "Function - params: Token[], body: Stmt[]",
   ], imports);
 }
 

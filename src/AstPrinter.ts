@@ -10,6 +10,7 @@ import {
   Call,
   Logical,
   Variable,
+  Function,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -62,6 +63,10 @@ class AstPrinter2 implements Visitor<string> {
 
   visitVariableExpr(expr: Variable): string {
     return expr.name.lexeme;
+  }
+
+  visitFunctionExpr(expr: Function): string {
+    return this.parenthesize(`fun (${expr.params.map((p) => p.lexeme).join(", ")})`);
   }
 
   parenthesize(name: string, ...exprs: Expr[]): string {

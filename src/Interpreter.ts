@@ -10,6 +10,7 @@ import {
   Assign,
   Logical,
   Call,
+  Function as FuncExpr,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -303,6 +304,10 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
   visitVariableExpr(expr: Variable): unknown {
     return this.environment.get(expr.name);
+  }
+
+  visitFunctionExpr(expr: FuncExpr): unknown {
+    return new LoxFunction(expr, this.environment);
   }
 
   private evaluate(expr: Expr): unknown {
