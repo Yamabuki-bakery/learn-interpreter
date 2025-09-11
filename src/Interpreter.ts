@@ -40,6 +40,7 @@ import { LoxFunction } from "./LoxFunction";
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   globals = new Environment();
   private environment: Environment = this.globals;
+  private readonly locals: Map<Expr, number> = new Map<Expr, number>();
 
   constructor() {
     // Define native functions here if needed
@@ -180,7 +181,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
   visitAssignExpr(expr: Assign): unknown {
     const value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
+    const distance = this.locals.get(expr);
+    if (distance !== undefined) {
+      this.environment.assignAt(distance, expr.name, value);
+    } else {
+      this.globals.assign(expr.name, value);
+    }
     return value;
   }
 
@@ -303,7 +309,16 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   }
 
   visitVariableExpr(expr: Variable): unknown {
-    return this.environment.get(expr.name);
+    return this.lookUpVariable(expr.name, expr);
+  }
+
+  private lookUpVariable(name: Token, expr: Expr): unknown {
+    const distance = this.locals.get(expr);
+    if (distance !== undefined) {
+      return this.environment.getAt(distance, name.lexeme);
+    } else {
+      return this.globals.get(name);
+    }
   }
 
   visitFunctionExpr(expr: FuncExpr): unknown {
@@ -317,7 +332,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   private execute(stmt: Stmt): void {
     stmt.accept(this);
   }
+
+  resolve(expr: Expr, depth: number): void {
+    this.locals.set(expr, depth);
+  }
 }
+
 function isEqual(a: unknown, b: unknown) {
   if (a === null && b === null) return true;
   if (a === null) return false;

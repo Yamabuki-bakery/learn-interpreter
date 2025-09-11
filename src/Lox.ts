@@ -9,6 +9,7 @@ import { Parser } from "./Parser";
 import { RuntimeError } from "./RuntimeError";
 import { Interpreter } from "./Interpreter";
 import { Expression } from "./generated/Stmt";
+import { Resolver } from "./Resolver";
 
 export let hadError = false;
 export let hadRuntimeError = false;
@@ -63,6 +64,10 @@ function run(source: string): void {
     console.log(interpreter.stringify(value));
     return;
   }
+
+  const resolver = new Resolver(interpreter);
+  resolver.resolve(statements);
+  if (hadError) return;
   interpreter.interpret(statements);
 }
 

@@ -18,3 +18,21 @@ _();
   print "hi";
 })();
 
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
+}
+
+var _6 = 6;
+
+{
+  var _7 = 7;
+  // print _6 + a + _7;
+}
+

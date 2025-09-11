@@ -14,9 +14,34 @@ export class Environment {
     this.values.set(name, value);
   }
 
+  getAt(distance: number, name: string): unknown {
+    return this.ancestor(distance).values.get(name);
+  }
+
+  assignAt(distance: number, name: Token, value: unknown): void {
+    const environment = this.ancestor(distance);
+    if (environment.values.has(name.lexeme)) {
+      environment.values.set(name.lexeme, value);
+      return;
+    }
+    throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
+  }
+
+  private ancestor(distance: number): Environment {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let environment: Environment = this;
+    for (let i = 0; i < distance; i++) {
+      if (!environment.enclosing) {
+        throw new Error("No enclosing environment");
+      }
+      environment = environment.enclosing;
+    }
+    return environment;
+  }
+
   get(name: Token): unknown {
     if (this.values.has(name.lexeme)) {
-      // check at runtime to allow recursion
+      // Check at runtime to allow recursion
       return this.values.get(name.lexeme);
     }
 
