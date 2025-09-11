@@ -70,6 +70,44 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 funcExpr       → "fun" "(" parameters? ")" block ;
 ```
 
+## Learning
+
+### Implementing closure
+
+Capture the current environment when the function is defined:
+
+```js
+  visitFunctionStmt(stmt: Function): void {
+    const func = new LoxFunction(stmt, this.environment);
+    this.environment.define(stmt.name.lexeme, func);
+    return;
+  }
+  visitFunctionExpr(expr: FuncExpr): unknown {
+    return new LoxFunction(expr, this.environment);
+  }
+```
+And use this env when called:
+
+```js
+  call(interpreter: Interpreter, args: unknown[]): unknown {
+    const environment = new Environment(this.closure);
+    args.forEach((arg, i) => {
+      environment.define(this.declaration.params[i].lexeme, arg);
+    });
+
+    try {
+      interpreter.executeBlock(this.declaration.body, environment);
+    } catch (error) {
+      if (error instanceof ReturnException) {
+        return error.value;
+      }
+      throw error;
+    }
+    return null;
+  }
+```
+
+Also, the passed args are re-defined in the current environment.
 
 ## 🧠 Challenge 1: Why don’t Smalltalk implementations suffer the performance cost of runtime arity checking?
 
