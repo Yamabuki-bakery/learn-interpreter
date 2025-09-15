@@ -89,7 +89,3 @@ void assignAt(int distance, int index, Object value) {
 ```
 
 This change makes variable access O(1) and avoids string lookups.
-
----
-
-Would you like help implementing these changes in your own interpreter codebase? I can walk you through modifying the `Resolver`, `Interpreter`, and `Environment` classes step by step.
