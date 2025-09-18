@@ -13,6 +13,7 @@ export interface Visitor<T> {
   visitPrintStmt(stmt: Print): T;
   visitReturnStmt(stmt: Return): T;
   visitFunctionStmt(stmt: Function): T;
+  visitClassStmt(stmt: Class): T;
   visitVarStmt(stmt: Var): T;
   visitWhileStmt(stmt: While): T;
   visitBreakStmt(stmt: Break): T;
@@ -65,6 +66,14 @@ export class Function implements Stmt {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitFunctionStmt(this);
+  }
+}
+
+export class Class implements Stmt {
+  constructor (readonly name: Token, readonly methods: Function[]) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitClassStmt(this);
   }
 }
 

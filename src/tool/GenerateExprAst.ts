@@ -22,6 +22,8 @@ export function main(): void {
     "Logical  - left: Expr, operator: Token, right: Expr",
     "Unary    - operator: Token, right: Expr",
     "Call     - callee: Expr, paren: Token, args: Expr[]",
+    "Get      - object: Expr, name: Token",
+    "Set      - object: Expr, name: Token, value: Expr",
     "Variable - name: Token",
     "Function - params: Token[], body: Stmt[]",
   ], imports);

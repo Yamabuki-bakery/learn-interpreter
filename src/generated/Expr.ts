@@ -16,6 +16,8 @@ export interface Visitor<T> {
   visitLogicalExpr(expr: Logical): T;
   visitUnaryExpr(expr: Unary): T;
   visitCallExpr(expr: Call): T;
+  visitGetExpr(expr: Get): T;
+  visitSetExpr(expr: Set): T;
   visitVariableExpr(expr: Variable): T;
   visitFunctionExpr(expr: Function): T;
 }
@@ -82,6 +84,22 @@ export class Call implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitCallExpr(this);
+  }
+}
+
+export class Get implements Expr {
+  constructor (readonly object: Expr, readonly name: Token) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitGetExpr(this);
+  }
+}
+
+export class Set implements Expr {
+  constructor (readonly object: Expr, readonly name: Token, readonly value: Expr) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitSetExpr(this);
   }
 }
 

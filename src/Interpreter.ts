@@ -11,6 +11,8 @@ import {
   Logical,
   Call,
   Function as FuncExpr,
+  Get,
+  Set,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -31,11 +33,14 @@ import {
   Continue,
   Function,
   Return,
+  Class,
 } from "./generated/Stmt";
 import { Environment } from "./Environment";
 import { castToLoxCallable } from "./LoxCallable";
 import { LoxCallable } from "./LoxCallable";
 import { LoxFunction } from "./LoxFunction";
+import { LoxClass } from "./LoxClass";
+import { LoxInstance } from "./LoxInstance";
 
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   globals = new Environment();
@@ -48,7 +53,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
       this.globals.define(fn.name, fn);
     });
   }
-  
+
   interpret(statements: Stmt[]): void {
     try {
       for (const statement of statements) {
@@ -150,12 +155,19 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     throw new ContinueException(stmt.keyword, "Continue statement");
   }
 
+  visitClassStmt(stmt: Class): void {
+    this.environment.define(stmt.name.lexeme, null);
+    const klass = new LoxClass(stmt.name.lexeme);
+    this.environment.assign(stmt.name, klass);
+    return;
+  }
+
   visitVarStmt(stmt: Var): void {
     let value: unknown = null;
     if (stmt.initializer !== null) {
       value = this.evaluate(stmt.initializer);
     }
-    
+
     this.environment.define(stmt.name.lexeme, value);
   }
 
@@ -292,7 +304,10 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const args = expr.args.map((arg) => this.evaluate(arg));
 
     if (!(callee instanceof LoxCallable)) {
-      throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+      throw new RuntimeError(
+        expr.paren,
+        "Can only call functions and classes.",
+      );
     }
 
     const func = castToLoxCallable(callee);
@@ -306,6 +321,24 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     }
 
     return func.call(this, args);
+  }
+
+  visitGetExpr(expr: Get): unknown {
+    const object = this.evaluate(expr.object);
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name);
+    }
+    throw new RuntimeError(expr.name, "Only instances have properties.");
+  }
+
+  visitSetExpr(expr: Set): unknown {
+    const object = this.evaluate(expr.object);
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.name, "Only instances have fields.");
+    }
+    const value = this.evaluate(expr.value);
+    object.set(expr.name, value);
+    return value;
   }
 
   visitVariableExpr(expr: Variable): unknown {

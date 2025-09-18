@@ -1,5 +1,6 @@
 import {
   Block,
+  Class,
   Expression,
   Function,
   If,
@@ -22,6 +23,8 @@ import {
   Logical,
   Unary,
   Ternary,
+  Get,
+  Set,
 } from "./generated/Expr";
 import { Interpreter } from "./Interpreter";
 import { Token } from "./Token";
@@ -94,6 +97,13 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     return null;
   }
 
+  visitClassStmt(stmt: Class): unknown {
+    this.declare(stmt.name);
+    this.define(stmt.name);
+
+    return null;
+  }
+
   visitFunctionStmt(stmt: Function): unknown {
     this.declare(stmt.name);
     // We define the name eagerly, before resolving the function’s body. This lets a function recursively refer to itself inside its own body.
@@ -129,6 +139,17 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     for (const arg of expr.args) {
       this.resolve(arg);
     }
+    return null;
+  }
+
+  visitGetExpr(expr: Get): unknown {
+    this.resolve(expr.object);
+    return null;
+  }
+
+  visitSetExpr(expr: Set): unknown {
+    this.resolve(expr.value);
+    this.resolve(expr.object);
     return null;
   }
 

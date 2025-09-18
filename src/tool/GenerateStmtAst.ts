@@ -22,6 +22,7 @@ export function main(): void {
       "Print      - expression: Expr",
       "Return     - keyword: Token, value: Expr | null",
       "Function   - name: Token, params: Token[], body: Stmt[]",
+      "Class      - name: Token, methods: Function[]",
       "Var        - name: Token, initializer: Expr | null",
       "While      - condition: Expr, body: Stmt",
       "Break      - keyword: Token",

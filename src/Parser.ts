@@ -13,6 +13,8 @@ import {
   Unary,
   Variable,
   Function as FuncExpr,
+  Get,
+  Set,
 } from "./generated/Expr";
 
 import {
@@ -27,6 +29,7 @@ import {
   Continue,
   Function,
   Return,
+  Class,
 } from "./generated/Stmt";
 
 export class Parser {
@@ -53,6 +56,7 @@ export class Parser {
 
   private declaration(): Stmt | null {
     try {
+      if (this.match(TokenType.CLASS)) return this.classDeclaration();
       if (this.match(TokenType.FUN)) return this.namedFunction("function");
       if (this.match(TokenType.VAR)) return this.varDeclaration();
       return this.statement();
@@ -64,6 +68,21 @@ export class Parser {
         throw error;
       }
     }
+  }
+
+  private classDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+
+    this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+    const methods: Function[] = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      methods.push(this.namedFunction("method"));
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+
+    return new Class(name, methods);
   }
 
   private namedFunction(kind: string): Function {
@@ -120,10 +139,7 @@ export class Parser {
 
   private breakStatement(): Stmt {
     if (this.loopDepth === 0) {
-      throw this.error(
-        this.previous(),
-        "Can't use 'break' outside of a loop.",
-      );
+      throw this.error(this.previous(), "Can't use 'break' outside of a loop.");
     }
     const keyword = this.previous();
     this.consume(TokenType.SEMICOLON, "Expect ';' after 'break'.");
@@ -166,7 +182,7 @@ export class Parser {
       increment = this.expression();
     }
     this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
-    
+
     this.loopDepth++;
     let body = this.statement();
 
@@ -279,6 +295,9 @@ export class Parser {
       if (expr instanceof Variable) {
         const name = expr.name;
         return new Assign(name, value);
+      } else if (expr instanceof Get) {
+        const get = expr;
+        return new Set(get.object, get.name, value);
       }
 
       this.error(equals, "Invalid assignment target.");
@@ -400,6 +419,12 @@ export class Parser {
     for (;;) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const name = this.consume(
+          TokenType.IDENTIFIER,
+          "Expect property name after '.'.",
+        );
+        expr = new Get(expr, name);
       } else {
         break;
       }
@@ -420,7 +445,7 @@ export class Parser {
         // not expression because of comma operator precedence
       } while (this.match(TokenType.COMMA));
     }
-    
+
     const paren = this.consume(
       TokenType.RIGHT_PAREN,
       "Expect ')' after arguments.",
@@ -431,7 +456,7 @@ export class Parser {
 
   funcExpr(kind: string): Expr {
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'fun'.");
-        const parameters: Token[] = [];
+    const parameters: Token[] = [];
     if (!this.check(TokenType.RIGHT_PAREN)) {
       do {
         if (parameters.length >= 255) {
@@ -454,7 +479,7 @@ export class Parser {
     if (this.match(TokenType.FALSE)) return new Literal(false);
     if (this.match(TokenType.TRUE)) return new Literal(true);
     if (this.match(TokenType.NIL)) return new Literal(null);
-    if (this.match(TokenType.FUN)) return this.funcExpr('anonymous function');
+    if (this.match(TokenType.FUN)) return this.funcExpr("anonymous function");
 
     if (this.match(TokenType.STRING, TokenType.NUMBER)) {
       return new Literal(this.previous().literal);
