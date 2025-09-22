@@ -33,6 +33,7 @@ import { error } from "./Lox";
 enum FunctionType {
   NONE,
   FUNCTION,
+  METHOD,
 }
 
 interface VarStatus {
@@ -100,6 +101,11 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
   visitClassStmt(stmt: Class): unknown {
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    for (const method of stmt.methods) {
+      const declaration = FunctionType.METHOD;
+      this.resolveFunction(method, declaration);
+    }
 
     return null;
   }

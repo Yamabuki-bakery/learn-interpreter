@@ -11,6 +11,8 @@ import {
   Logical,
   Variable,
   Function,
+  Get,
+  Set,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -67,6 +69,13 @@ class AstPrinter2 implements Visitor<string> {
 
   visitFunctionExpr(expr: Function): string {
     return this.parenthesize(`fun (${expr.params.map((p) => p.lexeme).join(", ")})`);
+  }
+
+  visitGetExpr(expr: Get): string {
+    return this.parenthesize(`get ${expr.name.lexeme}`, expr.object);
+  }
+  visitSetExpr(expr: Set): string {
+    return this.parenthesize(`set ${expr.name.lexeme}`, expr.object, expr.value);
   }
 
   parenthesize(name: string, ...exprs: Expr[]): string {
