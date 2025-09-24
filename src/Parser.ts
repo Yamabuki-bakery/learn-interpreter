@@ -15,6 +15,7 @@ import {
   Function as FuncExpr,
   Get,
   Set,
+  This,
 } from "./generated/Expr";
 
 import {
@@ -483,6 +484,10 @@ export class Parser {
 
     if (this.match(TokenType.STRING, TokenType.NUMBER)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.THIS)) {
+      return new This(this.previous());
     }
 
     // Parsing a variable expression is even easier. In primary(), we look for an identifier token.

@@ -20,6 +20,7 @@ export function main(): void {
     "Grouping - expression: Expr",
     "Literal  - value: LiteralTypes",
     "Logical  - left: Expr, operator: Token, right: Expr",
+    "This     - keyword: Token",
     "Unary    - operator: Token, right: Expr",
     "Call     - callee: Expr, paren: Token, args: Expr[]",
     "Get      - object: Expr, name: Token",

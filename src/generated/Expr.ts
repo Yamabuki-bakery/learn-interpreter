@@ -14,6 +14,7 @@ export interface Visitor<T> {
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
+  visitThisExpr(expr: This): T;
   visitUnaryExpr(expr: Unary): T;
   visitCallExpr(expr: Call): T;
   visitGetExpr(expr: Get): T;
@@ -68,6 +69,14 @@ export class Logical implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitLogicalExpr(this);
+  }
+}
+
+export class This implements Expr {
+  constructor (readonly keyword: Token) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitThisExpr(this);
   }
 }
 

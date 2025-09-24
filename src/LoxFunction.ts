@@ -41,4 +41,11 @@ export class LoxFunction extends LoxCallable {
       .map((param) => param.lexeme)
       .join(", ")}) { ${this.declaration.body.length} statements }`;
   }
+
+  bind(instance: unknown): LoxFunction {
+    // An implicit "this" argument is added to the environment
+    const environment = new Environment(this.closure);
+    environment.define("this", instance);
+    return new LoxFunction(this.declaration, environment);
+  }
 }

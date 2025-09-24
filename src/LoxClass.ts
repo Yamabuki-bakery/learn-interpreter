@@ -16,10 +16,19 @@ export class LoxClass extends LoxCallable {
   }
 
   arity(): number {
+    const initializer = this.methods.get("init");
+    if (initializer) {
+      return initializer.arity();
+    }
     return 0;
   }
 
   call(interpreter: Interpreter, args: unknown[]): unknown {
+    const initializer = this.methods.get("init");
+    if (initializer) {
+      initializer.bind(this).call(interpreter, args);
+    }
+
     return new LoxInstance(this);
   }
 }

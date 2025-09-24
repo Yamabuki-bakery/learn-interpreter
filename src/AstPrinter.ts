@@ -13,6 +13,7 @@ import {
   Function,
   Get,
   Set,
+  This,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -81,6 +82,10 @@ class AstPrinter2 implements Visitor<string> {
   parenthesize(name: string, ...exprs: Expr[]): string {
     const result = `${exprs.map((expr) => expr.accept(this) as string).join(" ")} ${name}`;
     return result;
+  }
+
+  visitThisExpr(expr: This): string {
+    return `this`;
   }
 }
 

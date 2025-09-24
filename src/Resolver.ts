@@ -25,6 +25,7 @@ import {
   Ternary,
   Get,
   Set,
+  This,
 } from "./generated/Expr";
 import { Interpreter } from "./Interpreter";
 import { Token } from "./Token";
@@ -36,6 +37,11 @@ enum FunctionType {
   METHOD,
 }
 
+enum ClassType {
+  NONE,
+  CLASS,
+}
+
 interface VarStatus {
   defined: boolean;
   used: boolean;
@@ -45,6 +51,7 @@ interface VarStatus {
 export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
   private readonly scopes: Map<string, VarStatus>[] = [];
   private currentFunction = FunctionType.NONE;
+  private currentClass = ClassType.NONE;
 
   constructor(private readonly interpreter: Interpreter) {}
 
@@ -99,14 +106,25 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
   }
 
   visitClassStmt(stmt: Class): unknown {
+    const enclosingClass = this.currentClass;
+    this.currentClass = ClassType.CLASS;
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    this.beginScope();
+    this.scopes[this.scopes.length - 1].set("this", {
+      defined: true,
+      used: false,
+      line: stmt.name.line,
+    });
 
     for (const method of stmt.methods) {
       const declaration = FunctionType.METHOD;
       this.resolveFunction(method, declaration);
     }
 
+    this.endScope();
+    this.currentClass = enclosingClass;
     return null;
   }
 
@@ -156,6 +174,15 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
   visitSetExpr(expr: Set): unknown {
     this.resolve(expr.value);
     this.resolve(expr.object);
+    return null;
+  }
+
+  visitThisExpr(expr: This): unknown {
+    if (this.currentClass === ClassType.NONE) {
+      error(expr.keyword, "Cannot use 'this' outside of a class.");
+      return null;
+    }
+    this.resolveLocal(expr, expr.keyword);
     return null;
   }
 
@@ -236,7 +263,9 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     const scope = this.scopes[this.scopes.length - 1];
     for (const [name, varStatus] of scope.entries()) {
       if (!varStatus.used) {
-        console.warn(`Line ${varStatus.line}: Variable "${name}" declared but never used.`);
+        console.warn(
+          `Line ${varStatus.line}: Variable "${name}" declared but never used.`,
+        );
       }
     }
     this.scopes.pop();

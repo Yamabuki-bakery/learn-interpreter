@@ -13,6 +13,7 @@ import {
   Function as FuncExpr,
   Get,
   Set,
+  This,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -91,7 +92,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     if (typeof object === "boolean" || typeof object === "string")
       return object.toString();
 
-    if (object instanceof LoxCallable) {
+    if (object instanceof LoxCallable || object instanceof LoxInstance) {
       return object.toString();
     }
 
@@ -346,6 +347,10 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const value = this.evaluate(expr.value);
     object.set(expr.name, value);
     return value;
+  }
+
+  visitThisExpr(expr: This): unknown {
+    return this.lookUpVariable(expr.keyword, expr);
   }
 
   visitVariableExpr(expr: Variable): unknown {
