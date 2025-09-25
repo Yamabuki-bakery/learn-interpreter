@@ -35,6 +35,7 @@ enum FunctionType {
   NONE,
   FUNCTION,
   METHOD,
+  INITIALIZER,
 }
 
 enum ClassType {
@@ -87,6 +88,9 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     }
 
     if (stmt.value !== null) {
+      if (this.currentFunction === FunctionType.INITIALIZER) {
+        error(stmt.keyword, "Cannot return a value from an initializer.");
+      }
       this.resolve(stmt.value);
     }
     return null;
@@ -114,13 +118,17 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     this.beginScope();
     this.scopes[this.scopes.length - 1].set("this", {
       defined: true,
-      used: false,
+      used: true,
       line: stmt.name.line,
     });
 
     for (const method of stmt.methods) {
-      const declaration = FunctionType.METHOD;
-      this.resolveFunction(method, declaration);
+      if (method.name.lexeme === "init") {
+        // Initializer
+        this.resolveFunction(method, FunctionType.INITIALIZER);
+      } else {
+        this.resolveFunction(method, FunctionType.METHOD);
+      }
     }
 
     this.endScope();
@@ -263,9 +271,9 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     const scope = this.scopes[this.scopes.length - 1];
     for (const [name, varStatus] of scope.entries()) {
       if (!varStatus.used) {
-        console.warn(
-          `Line ${varStatus.line}: Variable "${name}" declared but never used.`,
-        );
+        // console.warn(
+        //   `Line ${varStatus.line}: Variable "${name}" declared but never used.`,
+        // );
       }
     }
     this.scopes.pop();

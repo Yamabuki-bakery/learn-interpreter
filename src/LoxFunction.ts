@@ -8,6 +8,7 @@ export class LoxFunction extends LoxCallable {
   constructor(
     private readonly declaration: Function | FuncExpr,
     private readonly closure: Environment,
+    private readonly isInitializer = false,
   ) {
     super();
   }
@@ -26,9 +27,15 @@ export class LoxFunction extends LoxCallable {
       interpreter.executeBlock(this.declaration.body, environment);
     } catch (error) {
       if (error instanceof ReturnException) {
+        if (this.isInitializer) {
+          return this.closure.getAt(0, "this");
+        }
         return error.value;
       }
       throw error;
+    }
+    if (this.isInitializer) {
+      return this.closure.getAt(0, "this");
     }
     return null;
   }
@@ -46,6 +53,8 @@ export class LoxFunction extends LoxCallable {
     // An implicit "this" argument is added to the environment
     const environment = new Environment(this.closure);
     environment.define("this", instance);
-    return new LoxFunction(this.declaration, environment);
+    return new LoxFunction(this.declaration, environment, this.isInitializer);
   }
+
+
 }

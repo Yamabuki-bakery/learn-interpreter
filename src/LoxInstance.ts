@@ -1,3 +1,4 @@
+import { error } from "./Lox";
 import { LoxClass } from "./LoxClass";
 import { Token } from "./Token";
 
@@ -21,7 +22,7 @@ export class LoxInstance {
       return method.bind(this);
     }
 
-    throw new Error(`Undefined property '${name.lexeme}'.`);
+    error(name, `Undefined property '${name.lexeme}'.`);
   }
   
   set(name: Token, value: unknown): void {

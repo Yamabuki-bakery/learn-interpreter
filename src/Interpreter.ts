@@ -161,7 +161,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
     const methods = new Map<string, LoxFunction>();
     for (const method of stmt.methods) {
-      const func = new LoxFunction(method, this.environment);
+      const func = new LoxFunction(method, this.environment, method.name.lexeme === "init");
       methods.set(method.name.lexeme, func);
     }
 
