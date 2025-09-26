@@ -1,6 +1,7 @@
-import { error } from "./Lox";
 import { LoxClass } from "./LoxClass";
 import { Token } from "./Token";
+import { RuntimeError } from "./RuntimeError";
+
 
 export class LoxInstance {
   constructor(
@@ -22,7 +23,7 @@ export class LoxInstance {
       return method.bind(this);
     }
 
-    error(name, `Undefined property '${name.lexeme}'.`);
+    throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);
   }
   
   set(name: Token, value: unknown): void {

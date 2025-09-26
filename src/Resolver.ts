@@ -269,13 +269,13 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
   private endScope(): void {
     // Check for unused variables
     const scope = this.scopes[this.scopes.length - 1];
-    for (const [name, varStatus] of scope.entries()) {
-      if (!varStatus.used) {
-        // console.warn(
-        //   `Line ${varStatus.line}: Variable "${name}" declared but never used.`,
-        // );
-      }
-    }
+    // for (const [name, varStatus] of scope.entries()) {
+    //   if (!varStatus.used) {
+    //     console.warn(
+    //       `Line ${varStatus.line}: Variable "${name}" declared but never used.`,
+    //     );
+    //   }
+    // }
     this.scopes.pop();
   }
 

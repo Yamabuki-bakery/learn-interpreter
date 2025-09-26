@@ -9,26 +9,26 @@ export class Scanner {
   private start = 0;
   private current = 0;
   private line = 1;
-  private keywords: Record<string, TokenType> = {
-    and: TokenType.AND,
-    class: TokenType.CLASS,
-    else: TokenType.ELSE,
-    false: TokenType.FALSE,
-    for: TokenType.FOR,
-    fun: TokenType.FUN,
-    if: TokenType.IF,
-    nil: TokenType.NIL,
-    or: TokenType.OR,
-    print: TokenType.PRINT,
-    return: TokenType.RETURN,
-    super: TokenType.SUPER,
-    this: TokenType.THIS,
-    true: TokenType.TRUE,
-    var: TokenType.VAR,
-    while: TokenType.WHILE,
-    break: TokenType.BREAK,
-    continue: TokenType.CONTINUE,
-  };
+  private keywords = new Map<string, TokenType>([
+    ["and", TokenType.AND],
+    ["class", TokenType.CLASS],
+    ["else", TokenType.ELSE],
+    ["false", TokenType.FALSE],
+    ["for", TokenType.FOR],
+    ["fun", TokenType.FUN],
+    ["if", TokenType.IF],
+    ["nil", TokenType.NIL],
+    ["or", TokenType.OR],
+    ["print", TokenType.PRINT],
+    ["return", TokenType.RETURN],
+    ["super", TokenType.SUPER],
+    ["this", TokenType.THIS],
+    ["true", TokenType.TRUE],
+    ["var", TokenType.VAR],
+    ["while", TokenType.WHILE],
+    ["break", TokenType.BREAK],
+    ["continue", TokenType.CONTINUE],
+  ]);
 
   constructor(source: string) {
     this.source = source;
@@ -275,7 +275,7 @@ export class Scanner {
       this.advance();
     }
     const text = this.source.substring(this.start, this.current);
-    const type = this.keywords[text] || TokenType.IDENTIFIER;
+    const type = this.keywords.get(text) ?? TokenType.IDENTIFIER;
     this.addToken(type);
   }
 }

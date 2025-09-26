@@ -54,6 +54,8 @@ function run(source: string): void {
   const tokens = scanner.scanTokens();
   const parser = new Parser(tokens);
   const statements = parser.parse();
+  const resolver = new Resolver(interpreter);
+  resolver.resolve(statements);
 
   if (hadError) return;
   if (statements.length === 1 && statements[0] instanceof Expression) {
@@ -64,10 +66,6 @@ function run(source: string): void {
     console.log(interpreter.stringify(value));
     return;
   }
-
-  const resolver = new Resolver(interpreter);
-  resolver.resolve(statements);
-  if (hadError) return;
   interpreter.interpret(statements);
 }
 
