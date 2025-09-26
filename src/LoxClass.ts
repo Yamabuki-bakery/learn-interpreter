@@ -24,11 +24,13 @@ export class LoxClass extends LoxCallable {
   }
 
   call(interpreter: Interpreter, args: unknown[]): unknown {
+    // create instance first, then call initializer if any
+    const instance = new LoxInstance(this);
     const initializer = this.methods.get("init");
     if (initializer) {
-      initializer.bind(this).call(interpreter, args);
+      initializer.bind(instance).call(interpreter, args);
     }
 
-    return new LoxInstance(this);
+    return instance;
   }
 }
