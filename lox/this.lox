@@ -1,12 +1,2 @@
-class Thing {
-  getCallback() {
-    fun localFunction() {
-      print this;
-    }
+this; // Error at 'this': Can't use 'this' outside of a class.
 
-    return localFunction;
-  }
-}
-
-var callback = Thing().getCallback();
-callback();

@@ -1,0 +1,20 @@
+var a = 0;
+var i = 1;
+var temp;
+
+for (var b = 1;; b = temp + b) {
+  temp = a;
+  a = b;
+  i = i + 1;
+
+  if (i > 21) break;
+}
+print "22: " + a;
+
+i = 0;
+while (true) {
+  i = i + 1;
+  if (i > 10) break;
+  if (i == 5) continue;
+  print i;
+}
