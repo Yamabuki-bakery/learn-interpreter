@@ -192,7 +192,7 @@ declaration    → classDecl
 classDecl      → "class" IDENTIFIER "{" method* "}" ;
                
 funDecl        → "fun" function ;
-method         → "class"? function
+method         → "static"? function
 function       → IDENTIFIER "(" parameters? ")" block ;
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 

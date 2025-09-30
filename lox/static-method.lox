@@ -1,11 +1,11 @@
 class Math {
-  class square(x) {
+  static square(x) {
     return x * x;
   }
-  class pi() {
+  static pi() {
     return 3.14;
   }
-  class one_over_pi() {
+  static one_over_pi() {
     return 1 / this.pi();
   }
 }
@@ -19,21 +19,21 @@ class Circle {
   }
 }
 
-//print Circle.area(2); // error
-print Math.pi(); // 3.14
-print Math.square(3); // 9
-print Math.one_over_pi(); // 0.3184713375796178
+print "3 的平方是：" + Math.square(3); 
+print "π 分之 1 是：" + Math.one_over_pi(); 
 
 var c = Circle(3);
-print c.area(); // 28.26
+print "半徑 3 圓形的面積是👉🏻 " + c.area(); 
 
 
 Math.e = fun () {
+  print "插入了一個新的靜態方法 e()！";
   return 2.71;
-}; // OK
-print Math.e(); // 2.71
+}; 
+print "自然對數是：" + Math.e(); 
 
-var m = Math();
-print m.pi(); // error
-print m.square(3); // error
+var m = Math();  
+print m.pi();  // 靜態方法不能被實例呼叫
+print m.square(3); 
+
 

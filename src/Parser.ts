@@ -79,7 +79,7 @@ export class Parser {
     const methods: Function[] = [];
     const staticMethods: Function[] = [];
     while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
-      if (this.match(TokenType.CLASS)) {
+      if (this.match(TokenType.STATIC)) {
         staticMethods.push(this.namedFunction("static method"));
         continue;
       }

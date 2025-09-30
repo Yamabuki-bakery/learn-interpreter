@@ -28,6 +28,7 @@ export class Scanner {
     ["while", TokenType.WHILE],
     ["break", TokenType.BREAK],
     ["continue", TokenType.CONTINUE],
+    ["static", TokenType.STATIC],
   ]);
 
   constructor(source: string) {
@@ -61,6 +62,12 @@ export class Scanner {
         break;
       case "}":
         this.addToken(TokenType.RIGHT_BRACE);
+        break;
+      case "[":
+        this.addToken(TokenType.LEFT_BRACkET);
+        break;
+      case "]":
+        this.addToken(TokenType.RIGHT_BRACKET);
         break;
       case ",":
         this.addToken(TokenType.COMMA);
@@ -129,6 +136,7 @@ export class Scanner {
       case '"':
         this.string();
         break;
+
 
       case "0":
         if (this.peek() === "x" || this.peek() === "x") {

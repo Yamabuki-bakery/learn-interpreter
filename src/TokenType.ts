@@ -1,6 +1,7 @@
 export enum TokenType {
 	// Single-character tokens.
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+  LEFT_BRACkET, RIGHT_BRACKET,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
   // test
   COLON, QUESTION,
@@ -17,6 +18,7 @@ export enum TokenType {
   // Keywords.
   AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
   PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE, BREAK, CONTINUE,
+  STATIC,
 
   EOF
 }
