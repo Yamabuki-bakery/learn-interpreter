@@ -77,13 +77,18 @@ export class Parser {
     this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
 
     const methods: Function[] = [];
+    const staticMethods: Function[] = [];
     while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      if (this.match(TokenType.CLASS)) {
+        staticMethods.push(this.namedFunction("static method"));
+        continue;
+      }
       methods.push(this.namedFunction("method"));
     }
 
     this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
 
-    return new Class(name, methods);
+    return new Class(name, methods, staticMethods);
   }
 
   private namedFunction(kind: string): Function {

@@ -36,6 +36,7 @@ enum FunctionType {
   FUNCTION,
   METHOD,
   INITIALIZER,
+  STATIC_METHOD,
 }
 
 enum ClassType {
@@ -129,6 +130,16 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
       } else {
         this.resolveFunction(method, FunctionType.METHOD);
       }
+    }
+
+    for (const staticMethod of stmt.staticMethods) {
+      if (staticMethod.name.lexeme === "init") {
+        error(
+          staticMethod.name,
+          "Cannot have static method with name 'init'.",
+        );
+      }
+      this.resolveFunction(staticMethod, FunctionType.STATIC_METHOD);
     }
 
     this.endScope();

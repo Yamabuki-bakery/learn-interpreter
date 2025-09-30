@@ -189,9 +189,10 @@ declaration    → classDecl
                | varDecl
                | statement ;
                
-classDecl      → "class" IDENTIFIER "{" function* "}" ;
+classDecl      → "class" IDENTIFIER "{" method* "}" ;
                
 funDecl        → "fun" function ;
+method         → "class"? function
 function       → IDENTIFIER "(" parameters? ")" block ;
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 
@@ -255,3 +256,13 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 
 funcExpr       → "fun" "(" parameters? ")" block ;
 ```
+
+## Steps to add static method support:
+
+1. Add syntax and new stmt AST node type
+2. Add parser support to yield Class node with static methods
+3. Resolver: add function type
+4. Resolver: in visitClassStmt, resolve static methods
+5. LoxClass: copy get and set from LoxInstance
+6. Interpreter: Create class stmt runtime representation with static methods
+7. Interpreter: Fix some instanceof type check statement in visitGetExpr and visitSetExpr

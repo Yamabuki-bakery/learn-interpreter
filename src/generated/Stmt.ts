@@ -70,7 +70,7 @@ export class Function implements Stmt {
 }
 
 export class Class implements Stmt {
-  constructor (readonly name: Token, readonly methods: Function[]) { }
+  constructor (readonly name: Token, readonly methods: Function[], readonly staticMethods: Function[]) { }
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitClassStmt(this);

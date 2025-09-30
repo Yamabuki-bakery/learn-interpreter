@@ -165,7 +165,13 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
       methods.set(method.name.lexeme, func);
     }
 
-    const klass = new LoxClass(stmt.name.lexeme, methods);
+    const staticMethods = new Map<string, LoxFunction>();
+    for (const staticMethod of stmt.staticMethods) {
+      const func = new LoxFunction(staticMethod, this.environment, false);
+      staticMethods.set(staticMethod.name.lexeme, func);
+    }
+
+    const klass = new LoxClass(stmt.name.lexeme, methods, staticMethods);
     this.environment.assign(stmt.name, klass);
     return;
   }
@@ -335,13 +341,15 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const object = this.evaluate(expr.object);
     if (object instanceof LoxInstance) {
       return object.get(expr.name);
+    } else if (object instanceof LoxClass) {
+      return object.get(expr.name);
     }
     throw new RuntimeError(expr.name, "Only instances have properties.");
   }
 
   visitSetExpr(expr: Set): unknown {
     const object = this.evaluate(expr.object);
-    if (!(object instanceof LoxInstance)) {
+    if (!(object instanceof LoxInstance || object instanceof LoxClass)) {
       throw new RuntimeError(expr.name, "Only instances have fields.");
     }
     const value = this.evaluate(expr.value);

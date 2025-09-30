@@ -1,0 +1,39 @@
+class Math {
+  class square(x) {
+    return x * x;
+  }
+  class pi() {
+    return 3.14;
+  }
+  class one_over_pi() {
+    return 1 / this.pi();
+  }
+}
+
+class Circle {
+  init(radius) {
+    this.radius = radius;
+  }
+  area() {
+    return Math.pi() * Math.square(this.radius);
+  }
+}
+
+//print Circle.area(2); // error
+print Math.pi(); // 3.14
+print Math.square(3); // 9
+print Math.one_over_pi(); // 0.3184713375796178
+
+var c = Circle(3);
+print c.area(); // 28.26
+
+
+Math.e = fun () {
+  return 2.71;
+}; // OK
+print Math.e(); // 2.71
+
+var m = Math();
+print m.pi(); // error
+print m.square(3); // error
+
