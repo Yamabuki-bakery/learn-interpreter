@@ -15,6 +15,7 @@ export interface Visitor<T> {
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
   visitThisExpr(expr: This): T;
+  visitSuperExpr(expr: Super): T;
   visitUnaryExpr(expr: Unary): T;
   visitCallExpr(expr: Call): T;
   visitGetExpr(expr: Get): T;
@@ -77,6 +78,14 @@ export class This implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitThisExpr(this);
+  }
+}
+
+export class Super implements Expr {
+  constructor (readonly keyword: Token, readonly method: Token) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitSuperExpr(this);
   }
 }
 

@@ -70,7 +70,14 @@ arguments      → expression ( "," expression )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" 
                | IDENTIFIER 
-               | funcExpr ;
+               | funcExpr 
+               | "super" "." IDENTIFIER ;
 
 funcExpr       → "fun" "(" parameters? ")" block ;
 ```
+
+## Where to find super class?
+
+![](file-20251007202056576.jpg)
+
+在 define 各個 methods 之前，先綁定一個新 env，把 super 當作變量塞進去。

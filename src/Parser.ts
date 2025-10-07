@@ -16,6 +16,7 @@ import {
   Get,
   Set,
   This,
+  Super,
 } from "./generated/Expr";
 
 import {
@@ -495,6 +496,16 @@ export class Parser {
 
     if (this.match(TokenType.STRING, TokenType.NUMBER)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.SUPER)) {
+      const keyword = this.previous();
+      this.consume(TokenType.DOT, "Expect '.' after 'super'.");
+      const method = this.consume(
+        TokenType.IDENTIFIER,
+        "Expect superclass method name.",
+      );
+      return new Super(keyword, method);
     }
 
     if (this.match(TokenType.THIS)) {

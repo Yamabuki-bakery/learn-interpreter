@@ -18,16 +18,9 @@ export class LoxInstance {
       return this.field.get(name.lexeme);
     }
 
-    const method = this.klass.methods.get(name.lexeme);
+    const method = this.klass.findMethod(name.lexeme);
     if (method) {
       return method.bind(this);
-    }
-
-    if (this.klass.superclass !== null) {
-      const superMethod = this.klass.superclass.methods.get(name.lexeme);
-      if (superMethod) {
-        return superMethod.bind(this);
-      }
     }
 
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);

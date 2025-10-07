@@ -21,6 +21,7 @@ export function main(): void {
     "Literal  - value: LiteralTypes",
     "Logical  - left: Expr, operator: Token, right: Expr",
     "This     - keyword: Token",
+    "Super    - keyword: Token, method: Token",
     "Unary    - operator: Token, right: Expr",
     "Call     - callee: Expr, paren: Token, args: Expr[]",
     "Get      - object: Expr, name: Token",

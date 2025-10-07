@@ -14,6 +14,7 @@ import {
   Get,
   Set,
   This,
+  Super,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -171,6 +172,12 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
 
     this.environment.define(stmt.name.lexeme, null);
 
+    // if there is a superclass, we need to create a new environment for "super" keyword
+    if (stmt.superclass !== null) {
+      this.environment = new Environment(this.environment);
+      this.environment.define("super", superclass);
+    }
+
     const methods = new Map<string, LoxFunction>();
     for (const method of stmt.methods) {
       const func = new LoxFunction(method, this.environment, method.name.lexeme === "init");
@@ -184,8 +191,39 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     }
 
     const klass = new LoxClass(stmt.name.lexeme, superclass as LoxClass, methods, staticMethods);
+
+    if (superclass !== null) {
+      if (this.environment.enclosing === undefined) {
+        // Shell not happen
+        throw new Error("No enclosing environment for superclass");
+      }
+      this.environment = this.environment.enclosing;
+    }
+
     this.environment.assign(stmt.name, klass);
     return;
+  }
+
+  visitSuperExpr(expr: Super): unknown {
+    const distance = this.locals.get(expr);
+    if (distance === undefined) {
+      // Shall not happen
+      throw new Error("Undefined distance for 'super'");
+    }
+    const superclass = this.environment.getAt(distance, "super") as LoxClass;
+  
+    // "this" 永遠是我自己的 instance，就算我用的是 superclass 的方法
+    const object = this.environment.getAt(distance - 1, "this") as LoxInstance;
+  
+    const method = superclass.findMethod(expr.method.lexeme);
+    if (method === null) {
+      // Shall not happen
+      throw new RuntimeError(
+        expr.method,
+        `Undefined property '${expr.method.lexeme}'.`,
+      );
+    }
+    return method.bind(object);
   }
 
   visitVarStmt(stmt: Var): void {

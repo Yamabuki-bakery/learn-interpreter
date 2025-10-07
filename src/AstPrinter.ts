@@ -14,6 +14,7 @@ import {
   Get,
   Set,
   This,
+  Super,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -86,6 +87,10 @@ class AstPrinter2 implements Visitor<string> {
 
   visitThisExpr(expr: This): string {
     return `this`;
+  }
+
+  visitSuperExpr(expr: Super): string {
+    return `super.${expr.method.lexeme}`;
   }
 }
 

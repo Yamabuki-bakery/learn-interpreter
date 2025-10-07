@@ -61,4 +61,17 @@ export class LoxClass extends LoxCallable {
 
     return instance;
   }
+
+  findMethod(name: string): LoxFunction | null {
+    const method = this.methods.get(name);
+    if (method) {
+      return method;
+    }
+
+    if (this.superclass) {
+      return this.superclass.findMethod(name);
+    }
+
+    return null;
+  }
 }

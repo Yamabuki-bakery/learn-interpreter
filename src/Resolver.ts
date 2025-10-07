@@ -26,6 +26,7 @@ import {
   Get,
   Set,
   This,
+  Super,
 } from "./generated/Expr";
 import { Interpreter } from "./Interpreter";
 import { Token } from "./Token";
@@ -42,6 +43,7 @@ enum FunctionType {
 enum ClassType {
   NONE,
   CLASS,
+  SUBCLASS,
 }
 
 interface VarStatus {
@@ -122,7 +124,15 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     }
 
     if (stmt.superclass !== null) {
+      this.currentClass = ClassType.SUBCLASS;
       this.resolve(stmt.superclass);
+      this.beginScope();
+      this.scopes[this.scopes.length - 1].set("super", {
+        // 在外層 scope 塞一個 super，以便讓當前類方法查找
+        defined: true,
+        used: true,
+        line: stmt.superclass.name.line,
+      });
     }
 
     this.beginScope();
@@ -152,7 +162,18 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     }
 
     this.endScope();
+    if (stmt.superclass !== null) this.endScope();
     this.currentClass = enclosingClass;
+    return null;
+  }
+
+  visitSuperExpr(expr: Super): unknown {
+    if (this.currentClass === ClassType.NONE) {
+      error(expr.keyword, "Cannot use 'super' outside of a class.");
+    } else if (this.currentClass !== ClassType.SUBCLASS) {
+      error(expr.keyword, "Cannot use 'super' in a class with no superclass.");
+    }
+    this.resolveLocal(expr, expr.keyword);
     return null;
   }
 

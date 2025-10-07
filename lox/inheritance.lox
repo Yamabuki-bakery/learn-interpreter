@@ -7,3 +7,32 @@ class Doughnut {
 class BostonCream < Doughnut {}
 
 BostonCream().cook();
+
+class A {
+  method() {
+    print "A method";
+  }
+}
+
+class B < A {
+  method() {
+    print "B method";
+  }
+
+  test() {
+    super.method();
+  }
+}
+
+class C < B {}
+
+C().test();
+
+class Eclair {
+  cook() {
+    super.cook();
+    print "Pipe full of crème pâtissière.";
+  }
+}
+
+Eclair().cook();  // Error: 'super' used in a class with no superclass.
