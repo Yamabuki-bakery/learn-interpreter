@@ -10,6 +10,7 @@ export function main(): void {
   const outputDir = args[0];
   const imports = [
     'import { Expr } from "./Expr";',
+    'import { Variable } from "./Expr";',
     'import { Token } from "../Token";',
   ];
   defineAst(
@@ -22,7 +23,7 @@ export function main(): void {
       "Print      - expression: Expr",
       "Return     - keyword: Token, value: Expr | null",
       "Function   - name: Token, params: Token[], body: Stmt[]",
-      "Class      - name: Token, methods: Function[], staticMethods: Function[]",
+      "Class      - name: Token, superclass: Variable | null, methods: Function[], staticMethods: Function[]",
       "Var        - name: Token, initializer: Expr | null",
       "While      - condition: Expr, body: Stmt",
       "Break      - keyword: Token",

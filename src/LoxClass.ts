@@ -13,6 +13,7 @@ export class LoxClass extends LoxCallable {
 
   constructor(
     readonly name: string,
+    readonly superclass: LoxClass | null,
     readonly methods: Map<string, LoxFunction>,
     readonly staticMethods: Map<string, LoxFunction>,
     readonly field: Map<string, unknown> = new Map(),

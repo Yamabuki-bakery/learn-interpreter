@@ -23,6 +23,13 @@ export class LoxInstance {
       return method.bind(this);
     }
 
+    if (this.klass.superclass !== null) {
+      const superMethod = this.klass.superclass.methods.get(name.lexeme);
+      if (superMethod) {
+        return superMethod.bind(this);
+      }
+    }
+
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);
   }
   

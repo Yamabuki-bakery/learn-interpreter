@@ -157,6 +157,18 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: Class): void {
+    // check for superclass type
+    let superclass: unknown = null;
+    if (stmt.superclass !== null) {
+      superclass = this.evaluate(stmt.superclass);
+      if (!(superclass instanceof LoxClass)) {
+        throw new RuntimeError(
+          stmt.superclass.name,
+          "Superclass must be a class.",
+        );
+      }
+    }
+
     this.environment.define(stmt.name.lexeme, null);
 
     const methods = new Map<string, LoxFunction>();
@@ -171,7 +183,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
       staticMethods.set(staticMethod.name.lexeme, func);
     }
 
-    const klass = new LoxClass(stmt.name.lexeme, methods, staticMethods);
+    const klass = new LoxClass(stmt.name.lexeme, superclass as LoxClass, methods, staticMethods);
     this.environment.assign(stmt.name, klass);
     return;
   }
@@ -418,8 +430,8 @@ function checkNumberOperands(
   throw new RuntimeError(operator, "Operands must be numbers.");
 }
 
-class BreakException extends RuntimeError {}
-class ContinueException extends RuntimeError {}
+class BreakException extends RuntimeError { }
+class ContinueException extends RuntimeError { }
 export class ReturnException extends RuntimeError {
   value: unknown;
   constructor(value: unknown, token: Token) {
