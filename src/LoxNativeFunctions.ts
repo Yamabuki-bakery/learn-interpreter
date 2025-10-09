@@ -1,16 +1,22 @@
 import { LoxCallable } from "./LoxCallable";
+import { LoxInstance } from "./LoxInstance";
+import { LoxClass } from "./LoxClass";
+import { Interpreter } from "./Interpreter";
+import { Token } from "./Token";
+
 
 export class LoxNativeFunction extends LoxCallable {
+  private instance: LoxInstance | LoxClass | null = null;
   constructor(
     readonly name: string,
     private readonly arityGet: () => number,
-    private readonly func: () => unknown,
+    private readonly func: (_this: LoxInstance | LoxClass | null, args : unknown[], token: Token) => unknown,
   ) {
     super();
   }
 
-  call(): unknown {
-    return this.func();
+  call(interpreter: Interpreter, args: unknown[], token: Token): unknown {
+    return this.func(this.instance, args, token);
   }
 
   arity(): number {
@@ -19,6 +25,11 @@ export class LoxNativeFunction extends LoxCallable {
 
   toString(): string {
     return "<native fn>";
+  }
+
+  bind(instance: LoxInstance | LoxClass): this {
+    this.instance = instance;
+    return this;
   }
 }
 

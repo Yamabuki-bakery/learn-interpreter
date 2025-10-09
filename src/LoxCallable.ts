@@ -1,8 +1,9 @@
 import { Interpreter } from "./Interpreter";
+import { Token } from "./Token";
 
 export abstract class LoxCallable {
   abstract arity(): number;
-  abstract call(interpreter: Interpreter, args: unknown[]): unknown;
+  abstract call(interpreter: Interpreter, args: unknown[], token: Token): unknown;
   abstract toString(): string;
 }
 

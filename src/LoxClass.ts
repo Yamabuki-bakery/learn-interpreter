@@ -4,7 +4,7 @@ import { LoxInstance } from "./LoxInstance";
 import { LoxFunction } from "./LoxFunction";
 import { Token } from "./Token";
 import { RuntimeError } from "./RuntimeError";
-
+import { LoxNativeFunction } from "./LoxNativeFunctions";
 
 
 export class LoxClass extends LoxCallable {  
@@ -14,8 +14,8 @@ export class LoxClass extends LoxCallable {
   constructor(
     readonly name: string,
     readonly superclass: LoxClass | null,
-    readonly methods: Map<string, LoxFunction>,
-    readonly staticMethods: Map<string, LoxFunction>,
+    readonly methods: Map<string, LoxFunction | LoxNativeFunction>,
+    readonly staticMethods: Map<string, LoxFunction | LoxNativeFunction>,
     readonly field: Map<string, unknown> = new Map(),
   ) {
     super();
@@ -51,18 +51,19 @@ export class LoxClass extends LoxCallable {
     return 0;
   }
 
-  call(interpreter: Interpreter, args: unknown[]): unknown {
+   
+  call(interpreter: Interpreter, args: unknown[], token: Token): unknown {
     // create instance first, then call initializer if any
     const instance = new LoxInstance(this);
     const initializer = this.methods.get("init");
     if (initializer) {
-      initializer.bind(instance).call(interpreter, args);
+      initializer.bind(instance).call(interpreter, args, token);
     }
 
     return instance;
   }
 
-  findMethod(name: string): LoxFunction | null {
+  findMethod(name: string): LoxFunction | LoxNativeFunction | null {
     const method = this.methods.get(name);
     if (method) {
       return method;

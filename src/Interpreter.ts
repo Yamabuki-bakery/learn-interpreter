@@ -44,6 +44,9 @@ import { LoxFunction } from "./LoxFunction";
 import { LoxClass } from "./LoxClass";
 import { LoxInstance } from "./LoxInstance";
 
+// Native classes
+import { mathClass } from "./native-classes/Math";
+
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   globals = new Environment();
   private environment: Environment = this.globals;
@@ -54,6 +57,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     LoxNativeFunctions.forEach((fn) => {
       this.globals.define(fn.name, fn);
     });
+    this.globals.define("Math", mathClass);
   }
 
   interpret(statements: Stmt[]): void {
@@ -384,7 +388,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
       );
     }
 
-    return func.call(this, args);
+    return func.call(this, args, expr.paren);
   }
 
   visitGetExpr(expr: Get): unknown {

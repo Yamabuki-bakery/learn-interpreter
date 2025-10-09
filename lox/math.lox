@@ -1,0 +1,9 @@
+print Math.PI;
+print Math.E;
+print Math.abs(-10);
+
+Math._6 = 6;
+
+print Math._6;
+
+var math = Math(); // Error: Not initializable.
