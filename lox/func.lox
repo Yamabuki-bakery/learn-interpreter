@@ -16,3 +16,9 @@ fun count(n) {
 }
 
 count(10);
+
+fun sum(a, b, c) {
+  return a + b + c;
+}
+
+print sum(1, 2, 3);
