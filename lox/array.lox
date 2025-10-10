@@ -1,0 +1,19 @@
+var a = Array();
+print a; // []
+print a.length; // 0
+
+a.push(1);
+a.push(2);
+a.push("three");
+a.push(fun () { print "four"; print a; });
+print a; // [1, 2, "three", <fn>]
+print a.length(); // 4
+
+print a.getAt(0); 
+print a.getAt(1); 
+print a.getAt(2); 
+a.getAt(3)(); 
+print a.pop(); 
+
+a.push(a.getAt(0) + a.getAt(1) + a.getAt(2));
+print a.getAt(3); 
