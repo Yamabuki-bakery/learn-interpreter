@@ -20,6 +20,8 @@ export interface Visitor<T> {
   visitCallExpr(expr: Call): T;
   visitGetExpr(expr: Get): T;
   visitSetExpr(expr: Set): T;
+  visitGetIndexExpr(expr: GetIndex): T;
+  visitSetIndexExpr(expr: SetIndex): T;
   visitVariableExpr(expr: Variable): T;
   visitFunctionExpr(expr: Function): T;
 }
@@ -118,6 +120,22 @@ export class Set implements Expr {
 
   accept(visitor: Visitor<any>): any {
     return visitor.visitSetExpr(this);
+  }
+}
+
+export class GetIndex implements Expr {
+  constructor (readonly object: Expr, readonly bracket: Token, readonly index: Expr) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitGetIndexExpr(this);
+  }
+}
+
+export class SetIndex implements Expr {
+  constructor (readonly object: Expr, readonly bracket: Token, readonly index: Expr, readonly value: Expr) { }
+
+  accept(visitor: Visitor<any>): any {
+    return visitor.visitSetIndexExpr(this);
   }
 }
 

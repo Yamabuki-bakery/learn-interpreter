@@ -27,6 +27,8 @@ import {
   Set,
   This,
   Super,
+  GetIndex,
+  SetIndex,
 } from "./generated/Expr";
 import { Interpreter } from "./Interpreter";
 import { Token } from "./Token";
@@ -220,9 +222,22 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     return null;
   }
 
+  visitGetIndexExpr(expr: GetIndex): unknown {
+    this.resolve(expr.object);
+    this.resolve(expr.index);
+    return null;
+  }
+
   visitSetExpr(expr: Set): unknown {
     this.resolve(expr.value);
     this.resolve(expr.object);
+    return null;
+  }
+
+  visitSetIndexExpr(expr: SetIndex): unknown {
+    this.resolve(expr.value);
+    this.resolve(expr.object);
+    this.resolve(expr.index);
     return null;
   }
 

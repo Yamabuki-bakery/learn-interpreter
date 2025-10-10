@@ -17,6 +17,8 @@ import {
   Set,
   This,
   Super,
+  GetIndex,
+  SetIndex,
 } from "./generated/Expr";
 
 import {
@@ -311,6 +313,9 @@ export class Parser {
       } else if (expr instanceof Get) {
         const get = expr;
         return new Set(get.object, get.name, value);
+      } else if (expr instanceof GetIndex) {
+        const getIndex = expr;
+        return new SetIndex(getIndex.object, getIndex.bracket, getIndex.index, value);
       }
 
       this.error(equals, "Invalid assignment target.");
@@ -429,7 +434,7 @@ export class Parser {
   call(): Expr {
     let expr = this.primary();
 
-    for (;;) {
+    for (; ;) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
       } else if (this.match(TokenType.DOT)) {
@@ -438,6 +443,13 @@ export class Parser {
           "Expect property name after '.'.",
         );
         expr = new Get(expr, name);
+      } else if (this.match(TokenType.LEFT_BRACKET)) {
+        const index = this.expression();
+        const bracket = this.consume(
+          TokenType.RIGHT_BRACKET,
+          "Expect ']' after index.",
+        );
+        expr = new GetIndex(expr, bracket, index);
       } else {
         break;
       }
@@ -447,17 +459,7 @@ export class Parser {
   }
 
   private finishCall(callee: Expr): Expr {
-    const args: Expr[] = [];
-    if (!this.check(TokenType.RIGHT_PAREN)) {
-      do {
-        if (args.length >= 255) {
-          this.error(this.peek(), "Can't have more than 255 arguments.");
-        }
-        if (this.check(TokenType.RIGHT_PAREN)) break;
-        args.push(this.assignment());
-        // not expression because of comma operator precedence
-      } while (this.match(TokenType.COMMA));
-    }
+    const args: Expr[] = this.getArguments(TokenType.RIGHT_PAREN, 255);
 
     const paren = this.consume(
       TokenType.RIGHT_PAREN,
@@ -465,6 +467,21 @@ export class Parser {
     );
 
     return new Call(callee, paren, args);
+  }
+
+  private getArguments(finishTokenType: TokenType, limit?: number): Expr[] {
+    const args: Expr[] = [];
+    if (!this.check(finishTokenType)) {
+      do {
+        if (limit && args.length >= limit) {
+          this.error(this.peek(), `Can't have more than ${limit} arguments.`);
+        }
+        if (this.check(finishTokenType)) break;
+        args.push(this.assignment());
+        // Not expression because of comma operator precedence (Expected 3 arguments but got 1.)
+      } while (this.match(TokenType.COMMA));
+    }
+    return args;
   }
 
   funcExpr(kind: string): Expr {
@@ -515,6 +532,48 @@ export class Parser {
     // Parsing a variable expression is even easier. In primary(), we look for an identifier token.
     if (this.match(TokenType.IDENTIFIER)) {
       return new Variable(this.previous());
+    }
+
+    // Array literals
+    if (this.match(TokenType.LEFT_BRACKET)) {
+      const elements = this.getArguments(TokenType.RIGHT_BRACKET, 255);
+      this.consume(TokenType.RIGHT_BRACKET, "Expect ']' after array elements.");
+      // Transform into
+      // (fun () {
+      //   var arr = Array();
+      //   arr.push(1);
+      //   arr.push(2);
+      //   arr.push(3);
+      //   ...
+      //   return arr;
+      // })()
+      const statements: Stmt[] = [];
+      const arrVarName = "__arr";
+      statements.push(
+        new Var(
+          new Token(TokenType.IDENTIFIER, arrVarName, null, this.previous().line),
+          new Call(new Variable(new Token(TokenType.IDENTIFIER, "Array", null, this.previous().line)), new Token(TokenType.RIGHT_PAREN, ")", null, this.previous().line), []),
+        ),
+      );
+      for (const element of elements) {
+        statements.push(
+          new Expression(
+            new Call(
+              new Get(new Variable(new Token(TokenType.IDENTIFIER, arrVarName, null, this.previous().line)), new Token(TokenType.IDENTIFIER, "push", null, this.previous().line)),
+              new Token(TokenType.RIGHT_PAREN, ")", null, this.previous().line),
+              [element],
+            ),
+          ),
+        );
+      }
+      statements.push(
+        new Return(
+          new Token(TokenType.RETURN, "return", null, this.previous().line),
+          new Variable(new Token(TokenType.IDENTIFIER, arrVarName, null, this.previous().line)),
+        ),
+      );
+      const funcExpr = new FuncExpr([], statements);
+      return new Call(funcExpr, new Token(TokenType.RIGHT_PAREN, ")", null, this.previous().line), []);
     }
 
     if (this.match(TokenType.LEFT_PAREN)) {
@@ -583,4 +642,4 @@ export class Parser {
   }
 }
 
-class ParseError extends SyntaxError {}
+class ParseError extends SyntaxError { }

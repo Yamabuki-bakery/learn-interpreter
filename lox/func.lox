@@ -22,3 +22,7 @@ fun sum(a, b, c) {
 }
 
 print sum(1, 2, 3);
+
+print (fun () {
+  return "I am anonymous";
+})();

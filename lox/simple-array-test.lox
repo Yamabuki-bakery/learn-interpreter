@@ -1,0 +1,21 @@
+// Simple test first
+var arr = [1, 2, 3, 4, 5];
+print "Original: " + arr;
+
+// Test map
+var doubled = arr.map(fun (x) { return x * 2; });
+print "Doubled: " + doubled;
+
+// Test filter - simple test with greater than
+var big = arr.filter(fun (x) { return x > 3; });
+print "Greater than 3: " + big;
+
+// Test reduce
+var sum = arr.reduce(fun (acc, x) { return acc + x; }, 0);
+print "Sum: " + sum;
+
+// Test find
+var found = arr.find(fun (x) { return x > 3; });
+print "First > 3: " + found;
+
+print "Done!";

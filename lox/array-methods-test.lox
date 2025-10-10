@@ -1,0 +1,168 @@
+// Comprehensive test file for Array methods
+
+print "=== Array Methods Test ===";
+
+// Create test arrays
+var numbers = [1, 2, 3, 4, 5];
+var strings = ["apple", "banana", "cherry"];
+var mixed = [1, "hello", 3, "world", 5];
+
+print "Original arrays:";
+print "numbers: " + numbers;
+print "strings: " + strings;
+print "mixed: " + mixed;
+print "";
+
+// Test map
+print "=== MAP ===";
+var doubled = numbers.map(fun (x) { return x * 2; });
+print "doubled: " + doubled;
+
+var lengths = strings.map(fun (s) { return s; }); // Note: mapping strings as-is
+print "strings mapped: " + lengths;
+print "";
+
+// Test filter
+print "=== FILTER ===";
+// Filter numbers greater than 2
+var bigNumbers = numbers.filter(fun (x) { return x > 2; });
+print "numbers > 2: " + bigNumbers;
+
+// Filter strings that equal "banana"
+var bananas = strings.filter(fun (s) { return s == "banana"; });
+print "bananas: " + bananas;
+print "";
+
+// Test reduce
+print "=== REDUCE ===";
+var sum = numbers.reduce(fun (acc, x) { return acc + x; }, 0);
+print "sum of numbers: " + sum;
+
+var product = numbers.reduce(fun (acc, x) { return acc * x; }, 1);
+print "product of numbers: " + product;
+
+
+// Test find and findIndex
+print "=== FIND and FINDINDEX ===";
+var found = numbers.find(fun (x) { return x > 3; });
+print "first number > 3: " + found;
+
+var foundIndex = numbers.findIndex(fun (x) { return x > 3; });
+print "index of first number > 3: " + foundIndex;
+
+var notFound = numbers.find(fun (x) { return x > 10; });
+print "number > 10 (should be nil): " + notFound;
+
+var notFoundIndex = numbers.findIndex(fun (x) { return x > 10; });
+print "index of number > 10 (should be -1): " + notFoundIndex;
+print "";
+
+// Test includes and indexOf
+print "=== INCLUDES and INDEXOF ===";
+print "numbers includes 3: " + numbers.includes(3);
+print "numbers includes 10: " + numbers.includes(10);
+print "strings includes 'banana': " + strings.includes("banana");
+
+print "indexOf 3 in numbers: " + numbers.indexOf(3);
+print "indexOf 10 in numbers: " + numbers.indexOf(10);
+print "indexOf 'banana' in strings: " + strings.indexOf("banana");
+print "";
+
+// Test slice
+print "=== SLICE ===";
+var sliced = numbers.slice(1, 4);
+print "numbers.slice(1, 4): " + sliced;
+
+
+var slicedNegative = numbers.slice(-3, -1);
+print "numbers.slice(-3, -1): " + slicedNegative;
+print "";
+
+// Test join
+print "=== JOIN ===";
+print "numbers joined with ', ': " + numbers.join(", ");
+print "strings joined with ' | ': " + strings.join(" | ");
+print "numbers joined with default separator: " + numbers.join("");
+print "";
+
+// Test push, pop, unshift, shift
+print "=== PUSH, POP, UNSHIFT, SHIFT ===";
+var testArray = [10, 20];
+print "initial testArray: " + testArray;
+
+var newLength = testArray.push(30);
+print "after push(30): " + testArray + " (length: " + newLength + ")";
+
+var popped = testArray.pop();
+print "popped: " + popped + ", testArray: " + testArray;
+
+newLength = testArray.unshift(5);
+print "after unshift(5): " + testArray + " (length: " + newLength + ")";
+
+var shifted = testArray.shift();
+print "shifted: " + shifted + ", testArray: " + testArray;
+print "";
+
+// Test reverse
+print "=== REVERSE ===";
+var reverseTest = [1, 2, 3, 4, 5];
+print "before reverse: " + reverseTest;
+reverseTest.reverse();
+print "after reverse: " + reverseTest;
+print "";
+
+// Test sort
+print "=== SORT ===";
+var unsorted = [3, 1, 4, 1, 5, 9, 2, 6];
+print "unsorted: " + unsorted;
+
+var sortedCopy = unsorted.slice(0, unsorted.length()); // Make a copy
+sortedCopy.sort(nil);
+print "default sort: " + sortedCopy;
+
+// Custom sort function
+var customSorted = unsorted.slice(0, unsorted.length());
+customSorted.sort(fun (a, b) { return a - b; });
+print "numeric sort: " + customSorted;
+
+var descSorted = unsorted.slice(0, unsorted.length());
+descSorted.sort(fun (a, b) { return b - a; });
+print "descending sort: " + descSorted;
+print "";
+
+// Test forEach
+print "=== FOREACH ===";
+print "forEach with index:";
+numbers.forEach(fun (value, index) {
+    print "  [" + index + "] = " + value;
+});
+print "";
+
+// Test getAt and setAt
+print "=== GETAT and SETAT ===";
+var indexTest = [10, 20, 30];
+print "indexTest: " + indexTest;
+print "indexTest.getAt(1): " + indexTest.getAt(1);
+
+indexTest.setAt(1, 99);
+print "after setAt(1, 99): " + indexTest;
+print "";
+
+// Test length
+print "=== LENGTH ===";
+print "numbers.length(): " + numbers.length();
+print "strings.length(): " + strings.length();
+print "empty array length: " + [].length();
+print "";
+
+// Complex chaining example
+print "=== CHAINING EXAMPLE ===";
+// Get numbers > 2, then square them, then take first 2
+var filtered = numbers.filter(fun (x) { return x > 2; });
+var squared = filtered.map(fun (x) { return x * x; });
+var result = squared.slice(0, 2);
+
+print "numbers -> filter(>2) -> map(square) -> slice(0,2): " + result;
+
+print "";
+print "=== All tests completed! ===";

@@ -6,7 +6,7 @@ import { LoxNativeClass } from "./LoxNativeClass";
 
 export class LoxInstance {
   constructor(
-    private readonly klass: LoxClass | LoxNativeClass,
+    readonly klass: LoxClass | LoxNativeClass,
     private readonly field: Map<string, unknown> = new Map(),
   ) {}
 

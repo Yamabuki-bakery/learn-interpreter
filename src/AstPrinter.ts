@@ -15,6 +15,8 @@ import {
   Set,
   This,
   Super,
+  GetIndex,
+  SetIndex,
 } from "./generated/Expr";
 import { Token } from "./Token";
 import { TokenType } from "./TokenType";
@@ -76,8 +78,17 @@ class AstPrinter2 implements Visitor<string> {
   visitGetExpr(expr: Get): string {
     return this.parenthesize(`get ${expr.name.lexeme}`, expr.object);
   }
+
+  visitGetIndexExpr(expr: GetIndex): string {
+    return this.parenthesize(`getAt`, expr.object, expr.index);
+  }
+
   visitSetExpr(expr: Set): string {
     return this.parenthesize(`set ${expr.name.lexeme}`, expr.object, expr.value);
+  }
+
+  visitSetIndexExpr(expr: SetIndex): string {
+    return this.parenthesize(`setAt`, expr.object, expr.index, expr.value);
   }
 
   parenthesize(name: string, ...exprs: Expr[]): string {

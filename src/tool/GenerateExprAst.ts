@@ -26,6 +26,9 @@ export function main(): void {
     "Call     - callee: Expr, paren: Token, args: Expr[]",
     "Get      - object: Expr, name: Token",
     "Set      - object: Expr, name: Token, value: Expr",
+    "GetIndex - object: Expr, bracket: Token, index: Expr",
+    "SetIndex - object: Expr, bracket: Token, index: Expr, value: Expr",
+    // "Array    - elements: Expr[], bracket: Token",
     "Variable - name: Token",
     "Function - params: Token[], body: Stmt[]",
   ], imports);

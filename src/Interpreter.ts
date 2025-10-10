@@ -15,6 +15,8 @@ import {
   Set,
   This,
   Super,
+  GetIndex,
+  SetIndex,
 } from "./generated/Expr";
 import { TokenType } from "./TokenType";
 import { Token } from "./Token";
@@ -405,6 +407,20 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     throw new RuntimeError(expr.name, "Only instances have properties.");
   }
 
+  visitGetIndexExpr(expr: GetIndex): unknown {
+    const object = this.evaluate(expr.object);
+    // check if object is LoxInstance and have "getAt" method
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.bracket, "Only instances are indexable.");
+    }
+    const index = this.evaluate(expr.index);
+    const getAtMethod = object.klass.findMethod("getAt");
+    if (!getAtMethod) {
+      throw new RuntimeError(expr.bracket, "This instance is not indexable.");
+    }
+    return getAtMethod.bind(object).call(this, [index], expr.bracket);
+  }
+
   visitSetExpr(expr: Set): unknown {
     const object = this.evaluate(expr.object);
     if (!(object instanceof LoxInstance || object instanceof LoxClass)) {
@@ -413,6 +429,21 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
     const value = this.evaluate(expr.value);
     object.set(expr.name, value);
     return value;
+  }
+
+  visitSetIndexExpr(expr: SetIndex): unknown {
+    const object = this.evaluate(expr.object);
+    // check if object is LoxInstance and have "setAt" method
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.bracket, "Only instances are indexable.");
+    }
+    const index = this.evaluate(expr.index);
+    const value = this.evaluate(expr.value);
+    const setAtMethod = object.klass.findMethod("setAt");
+    if (!setAtMethod) {
+      throw new RuntimeError(expr.bracket, "This instance is not indexable.");
+    }
+    return setAtMethod.bind(object).call(this, [index, value], expr.bracket);
   }
 
   visitThisExpr(expr: This): unknown {
