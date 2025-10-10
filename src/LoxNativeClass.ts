@@ -8,8 +8,8 @@ import { LoxNativeFunction } from "./LoxNativeFunctions";
 export class LoxNativeClass extends LoxClass {  
   constructor(
     readonly name: string,
-    readonly methods: Map<string, LoxNativeFunction>,
-    readonly staticMethods: Map<string, LoxNativeFunction>,  // for static method support
+    readonly methods: Map<string, LoxNativeFunction> = new Map(),
+    readonly staticMethods: Map<string, LoxNativeFunction> = new Map(),  // for static method support
     readonly field: Map<string, unknown> = new Map(),  // for static field support
     // todo: initialization support?
   ) {

@@ -1,0 +1,10 @@
+var a = "hello";
+print a;
+
+print String;
+
+var b = String(a);
+print b;
+print b.length();
+print b.charAt(1);
+

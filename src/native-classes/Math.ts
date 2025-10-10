@@ -7,7 +7,6 @@ import { LoxNativeFunction } from "../LoxNativeFunctions";
 export class MathClass extends LoxNativeClass {
   constructor() {
     const name = "Math";
-    const methods = new Map<string, LoxNativeFunction>();
     const staticMethods = new Map<string, LoxNativeFunction>();
     const field = new Map<string, unknown>();
 
@@ -31,7 +30,7 @@ export class MathClass extends LoxNativeClass {
 
     staticMethods.set("abs", absFunc);
 
-    super(name, methods, staticMethods, field);
+    super(name, undefined, staticMethods, field);
   }
   toString(): string {
     return `<native class ${this.name}>`;

@@ -46,6 +46,7 @@ import { LoxInstance } from "./LoxInstance";
 
 // Native classes
 import { mathClass } from "./native-classes/Math";
+import { stringClass } from "./native-classes/String";
 
 export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
   globals = new Environment();
@@ -58,6 +59,7 @@ export class Interpreter implements ExprVisitor<unknown>, StmtVisitor<void> {
       this.globals.define(fn.name, fn);
     });
     this.globals.define("Math", mathClass);
+    this.globals.define("String", stringClass);
   }
 
   interpret(statements: Stmt[]): void {
