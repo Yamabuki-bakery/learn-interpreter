@@ -42,7 +42,7 @@ export class ArrayClass extends LoxNativeClass {
       (_this, _args, token) => {
         const instance = check_this(_this, token);
         if (instance.value.length === 0) {
-          throw new RuntimeError(token, "Cannot pop from empty array.");
+          throw new RuntimeError(token, "Can't pop from empty array.");
         }
         return instance.value.pop();
       }
@@ -294,7 +294,7 @@ export class ArrayClass extends LoxNativeClass {
       (_this, _args, token) => {
         const instance = check_this(_this, token);
         if (instance.value.length === 0) {
-          throw new RuntimeError(token, "Cannot shift from empty array.");
+          throw new RuntimeError(token, "Can't shift from empty array.");
         }
         return instance.value.shift();
       }

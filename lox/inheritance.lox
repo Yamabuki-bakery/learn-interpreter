@@ -9,7 +9,7 @@ class BostonCream < Doughnut {}
 BostonCream().cook();
 
 class A {
-  method() {
+  method(a) {
     print "A method";
   }
 }
@@ -20,7 +20,7 @@ class B < A {
   }
 
   test() {
-    super.method();
+    super.method(1);
   }
 }
 
@@ -28,11 +28,18 @@ class C < B {}
 
 C().test();
 
-class Eclair {
-  cook() {
-    super.cook();
-    print "Pipe full of crème pâtissière.";
+class A {
+  init(param) {
+    this.field = param;
+  }
+
+  test() {
+    print this.field;
   }
 }
 
-Eclair().cook();  // Error: 'super' used in a class with no superclass.
+class B < A {}
+
+var b = B("value");
+b.test(); // expect: value
+

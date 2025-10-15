@@ -36,7 +36,7 @@ export class MathClass extends LoxNativeClass {
     return `<native class ${this.name}>`;
   }
   call(interpreter: Interpreter, args: unknown[], token: Token): unknown {
-    throw new RuntimeError(token, "Cannot instantiate Math class.");
+    throw new RuntimeError(token, "Can't instantiate Math class.");
   }
 }
 

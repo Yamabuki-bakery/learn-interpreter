@@ -44,7 +44,7 @@ export class LoxClass extends LoxCallable {
   }
 
   arity(): number {
-    const initializer = this.methods.get("init");
+    const initializer = this.findMethod("init");
     if (initializer) {
       return initializer.arity();
     }
@@ -55,7 +55,7 @@ export class LoxClass extends LoxCallable {
   call(interpreter: Interpreter, args: unknown[], token: Token): unknown {
     // create instance first, then call initializer if any
     const instance = new LoxInstance(this);
-    const initializer = this.methods.get("init");
+    const initializer = this.findMethod("init");
     if (initializer) {
       initializer.bind(instance).call(interpreter, args, token);
     }

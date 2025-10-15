@@ -89,12 +89,12 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
 
   visitReturnStmt(stmt: Return): unknown {
     if (this.currentFunction === FunctionType.NONE) {
-      error(stmt.keyword, "Cannot return from top-level code.");
+      error(stmt.keyword, "Can't return from top-level code.");
     }
 
     if (stmt.value !== null) {
       if (this.currentFunction === FunctionType.INITIALIZER) {
-        error(stmt.keyword, "Cannot return a value from an initializer.");
+        error(stmt.keyword, "Can't return a value from an initializer.");
       }
       this.resolve(stmt.value);
     }
@@ -122,7 +122,7 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
 
     // detecting inheritance loop here
     if (stmt.superclass !== null && stmt.name.lexeme === stmt.superclass.name.lexeme) {
-      error(stmt.superclass.name, "A class cannot inherit from itself.");
+      error(stmt.superclass.name, "A class can't inherit from itself.");
     }
 
     if (stmt.superclass !== null) {
@@ -157,7 +157,7 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
       if (staticMethod.name.lexeme === "init") {
         error(
           staticMethod.name,
-          "Cannot have static method with name 'init'.",
+          "Can't have static method with name 'init'.",
         );
       }
       this.resolveFunction(staticMethod, FunctionType.STATIC_METHOD);
@@ -171,9 +171,9 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
 
   visitSuperExpr(expr: Super): unknown {
     if (this.currentClass === ClassType.NONE) {
-      error(expr.keyword, "Cannot use 'super' outside of a class.");
+      error(expr.keyword, "Can't use 'super' outside of a class.");
     } else if (this.currentClass !== ClassType.SUBCLASS) {
-      error(expr.keyword, "Cannot use 'super' in a class with no superclass.");
+      error(expr.keyword, "Can't use 'super' in a class with no superclass.");
     }
     this.resolveLocal(expr, expr.keyword);
     return null;
@@ -243,7 +243,7 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
 
   visitThisExpr(expr: This): unknown {
     if (this.currentClass === ClassType.NONE) {
-      error(expr.keyword, "Cannot use 'this' outside of a class.");
+      error(expr.keyword, "Can't use 'this' outside of a class.");
       return null;
     }
     this.resolveLocal(expr, expr.keyword);
@@ -284,7 +284,7 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
         false
     ) {
       // Preventing local var re-define and shadowing itself
-      error(expr.name, "Cannot read local variable in its own initializer.");
+      error(expr.name, "Can't read local variable in its own initializer.");
     }
 
     this.resolveLocal(expr, expr.name);
@@ -339,7 +339,7 @@ export class Resolver implements StmtVisitor<unknown>, ExprVisitor<unknown> {
     if (this.scopes.length === 0) return;
     const scope = this.scopes[this.scopes.length - 1];
     if (scope.has(name.lexeme)) {
-      error(name, `Variable with this name already declared in this scope.`);
+      error(name, `Already a variable with this name in this scope.`);
     }
 
     scope.set(name.lexeme, { defined: false, used: false, line: name.line });
