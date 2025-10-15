@@ -1,0 +1,4 @@
+fun foo() {}
+print foo; // expect: function foo() { 0 statements }
+
+print clock; // expect: <native fn>

@@ -23,7 +23,7 @@
 		"format": "prettier .",
 		"lint": "eslint . --max-warnings 0",
 		"prepare": "husky",
-		"test": "vitest",
+		"test": "dart ./tool/bin/test.dart jlox --interpreter ./tlox",
 		"tsc": "tsc",
 		"start": "node lib/index.js",
 		"ex": "pnpm build && pnpm start"
